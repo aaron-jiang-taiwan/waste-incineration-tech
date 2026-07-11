@@ -1,0 +1,7 @@
+# macOS 系統檔案
+.DS_Store
+**/.DS_Store
+
+# 各駕駛艙的本地備份影片（網頁一律改用 YouTube 嵌入播放，不上傳）
+*.mp4
+**/*.mp4

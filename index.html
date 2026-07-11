@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>焚化處理技術｜教學駕駛艙目錄</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board:#1f3d2b;
+    --board2:#16291c;
+    --wood1:#8a5a34;
+    --chalk-white:#f5f3e7;
+    --chalk-yellow:#ffe66d;
+    --chalk-blue:#7ec8ff;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.03), transparent 40%),
+      radial-gradient(ellipse at bottom right, rgba(255,255,255,0.03), transparent 40%),
+      var(--board);
+    color:var(--chalk-white);
+    font-family:'Noto Sans TC',sans-serif;
+    min-height:100vh;
+  }
+  h1,h2,.chalk-font{font-family:'Zhi Mang Xing','Noto Sans TC',sans-serif;}
+
+  header{
+    padding:36px 26px 20px;
+    border-bottom:4px solid var(--wood1);
+    text-align:center;
+  }
+  header h1{font-size:2.2rem;margin:0;color:var(--chalk-white);text-shadow:0 0 8px rgba(255,255,255,0.25);}
+  header p{color:var(--chalk-yellow);font-size:1rem;margin:8px 0 0;}
+
+  main{max-width:1100px;margin:0 auto;padding:40px 24px 80px;}
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+    gap:24px;
+  }
+  .card{
+    display:block;
+    background:rgba(0,0,0,0.18);
+    border:2px dashed rgba(245,243,231,0.4);
+    border-radius:16px;
+    padding:22px;
+    text-decoration:none;
+    color:var(--chalk-white);
+    transition:.2s;
+  }
+  .card:hover{border-color:var(--chalk-yellow);box-shadow:0 0 16px rgba(255,230,109,0.25);transform:translateY(-3px);}
+  .card .tag{display:inline-block;background:var(--chalk-yellow);color:#1f3d2b;font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:999px;margin-bottom:10px;}
+  .card h2{font-size:1.4rem;margin:0 0 8px;color:var(--chalk-white);}
+  .card p{font-size:0.88rem;line-height:1.6;color:rgba(245,243,231,0.8);margin:0;}
+  .card .enter{display:inline-block;margin-top:14px;font-size:0.85rem;color:var(--chalk-blue);}
+
+  .empty-note{
+    border:2px dashed rgba(245,243,231,0.3);border-radius:16px;padding:30px;text-align:center;
+    color:rgba(245,243,231,0.55);font-size:0.9rem;
+  }
+  footer{text-align:center;padding:20px;color:rgba(245,243,231,0.4);font-size:0.78rem;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎓 焚化處理技術</h1>
+  <p>教學駕駛艙目錄・黑板粉筆版</p>
+</header>
+
+<main>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>持續更新中，之後新增的教學主題會出現在這裡</footer>
+
+<script>
+/* 之後新增駕駛艙，只要在這個陣列裡加一筆資料即可 */
+const COCKPITS = [
+  {
+    tag: "已上線",
+    title: "焚化爐飛灰防止戴奧辛生成",
+    desc: "探討如何透過含氮、含硫抑制劑（硫脲、硫酸銨），從源頭抑制焚化爐飛灰中戴奧辛（PCDD/F）的低溫再生成。",
+    link: "./焚化爐飛灰防止戴奧辛生成/"
+  }
+];
+
+const grid = document.getElementById('grid');
+if(COCKPITS.length === 0){
+  grid.innerHTML = '<div class="empty-note">目前還沒有上線的駕駛艙，敬請期待。</div>';
+} else {
+  COCKPITS.forEach(c=>{
+    const a = document.createElement('a');
+    a.className = 'card';
+    a.href = c.link;
+    a.innerHTML = `
+      <span class="tag">${c.tag}</span>
+      <h2>${c.title}</h2>
+      <p>${c.desc}</p>
+      <span class="enter">進入駕駛艙 →</span>
+    `;
+    grid.appendChild(a);
+  });
+}
+</script>
+</body>
+</html>

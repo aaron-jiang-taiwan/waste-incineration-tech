@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>焚化爐飛灰防止戴奧辛生成｜教學駕駛艙</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board:#1f3d2b;
+    --board2:#16291c;
+    --wood1:#8a5a34;
+    --wood2:#6b4423;
+    --chalk-white:#f5f3e7;
+    --chalk-yellow:#ffe66d;
+    --chalk-pink:#ff6b9d;
+    --chalk-blue:#7ec8ff;
+    --chalk-green:#8de08d;
+    --chalk-red:#ff7b7b;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.03), transparent 40%),
+      radial-gradient(ellipse at bottom right, rgba(255,255,255,0.03), transparent 40%),
+      var(--board);
+    color:var(--chalk-white);
+    font-family:'Noto Sans TC',sans-serif;
+    min-height:100vh;
+    padding-bottom:80px;
+  }
+  h1,h2,h3,.chalk-font{font-family:'Zhi Mang Xing','Noto Sans TC',sans-serif;}
+  ::selection{background:var(--chalk-yellow);color:#222;}
+
+  /* ---------- header ---------- */
+  .cockpit-header{
+    position:sticky;top:0;z-index:50;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 26px;
+    border-bottom:4px solid var(--wood1);
+    background:linear-gradient(180deg, rgba(15,30,20,0.97), rgba(31,61,43,0.97));
+    flex-wrap:wrap;gap:12px;
+  }
+  .cockpit-header h1{
+    font-size:1.5rem;margin:0;color:var(--chalk-white);
+    text-shadow:0 0 6px rgba(255,255,255,0.25);
+  }
+  .cockpit-header h1 span{display:block;font-size:0.9rem;color:var(--chalk-yellow);font-family:'Noto Sans TC',sans-serif;margin-top:2px;}
+  .header-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .mode-switch{display:flex;border:2px solid var(--chalk-white);border-radius:999px;overflow:hidden;}
+  .mode-btn{
+    background:transparent;border:none;color:var(--chalk-white);
+    padding:8px 16px;font-size:0.95rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-weight:700;
+    transition:.2s;
+  }
+  .mode-btn.active{background:var(--chalk-yellow);color:#1f3d2b;}
+  .asset-btn{
+    background:transparent;border:2px dashed rgba(245,243,231,0.6);color:var(--chalk-white);
+    border-radius:10px;padding:8px 14px;cursor:pointer;font-size:0.9rem;font-family:'Noto Sans TC',sans-serif;
+  }
+  .asset-btn:hover{border-color:var(--chalk-yellow);color:var(--chalk-yellow);}
+
+  /* ---------- scroll hint ---------- */
+  .scroll-hint{
+    text-align:center;color:rgba(245,243,231,0.55);font-size:0.82rem;padding:10px 0 0;
+  }
+
+  /* ---------- side nav (vertical scroll-spy) ---------- */
+  .side-nav{
+    position:fixed;left:14px;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:10px;z-index:40;
+  }
+  .side-nav button{
+    width:46px;height:46px;border-radius:50%;
+    border:2px solid rgba(245,243,231,0.4);background:rgba(22,41,28,0.92);
+    color:var(--chalk-white);cursor:pointer;font-weight:700;font-size:0.95rem;
+    box-shadow:2px 3px 8px rgba(0,0,0,0.35);
+    font-family:'Noto Sans TC',sans-serif;
+    transition:.2s;
+  }
+  .side-nav button:hover{border-color:var(--chalk-yellow);}
+  .side-nav button.active{
+    border-color:var(--chalk-yellow);color:#1f3d2b;background:var(--chalk-yellow);
+    box-shadow:0 0 10px rgba(255,230,109,0.5);
+  }
+  .side-nav-label{
+    position:absolute;left:58px;top:50%;transform:translateY(-50%);
+    white-space:nowrap;background:var(--board2);border:1px solid var(--wood1);border-radius:6px;
+    padding:4px 10px;font-size:0.78rem;opacity:0;pointer-events:none;transition:.15s;
+  }
+  .side-nav button:hover .side-nav-label{opacity:1;}
+
+  /* ---------- main / vertical sections ---------- */
+  .cockpit-main{padding:18px 110px 18px 90px;max-width:1500px;margin:0 auto;}
+  @media (max-width:1100px){ .cockpit-main{padding:18px 90px 18px 70px;} }
+
+  .point-section{scroll-margin-top:96px;padding-bottom:34px;margin-bottom:34px;border-bottom:2px dashed rgba(245,243,231,0.22);}
+  .point-section:last-child{border-bottom:none;}
+  .point-section h2{font-size:1.7rem;color:var(--chalk-yellow);margin:6px 0 4px;text-shadow:0 0 6px rgba(255,230,109,0.3);}
+  .point-section > p.desc{color:rgba(245,243,231,0.85);margin:0 0 16px;line-height:1.7;font-size:0.96rem;max-width:900px;}
+
+  .panel-grid{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .lower-grid{
+    display:grid;
+    grid-template-columns:1.3fr 1fr;
+    gap:18px;
+    align-items:stretch;
+  }
+  @media (max-width:1100px){ .lower-grid{grid-template-columns:1fr;} }
+
+  .panel-card{
+    background:rgba(0,0,0,0.18);
+    border:2px dashed rgba(245,243,231,0.4);
+    border-radius:14px;
+    padding:16px;
+    display:flex;flex-direction:column;
+    min-height:340px;
+  }
+  .panel-card h3{margin:0 0 10px;font-size:1.2rem;color:var(--chalk-white);border-bottom:1px dashed rgba(245,243,231,0.3);padding-bottom:8px;}
+  .carousel-card{min-height:auto;}
+  .carousel-card h3{display:flex;justify-content:space-between;align-items:center;}
+  .carousel-expand-btn{background:rgba(245,243,231,0.1);border:1px solid rgba(245,243,231,0.4);color:var(--chalk-white);
+    border-radius:8px;padding:4px 10px;cursor:pointer;font-size:0.78rem;font-family:'Noto Sans TC',sans-serif;}
+  .carousel-expand-btn:hover{border-color:var(--chalk-yellow);color:var(--chalk-yellow);}
+
+  /* ---------- carousel ---------- */
+  .carousel{position:relative;flex:1;display:flex;flex-direction:column;}
+  .carousel-viewport{position:relative;width:100%;aspect-ratio:16/9;max-height:78vh;border-radius:10px;overflow:hidden;background:#0d1f14;border:1px solid rgba(245,243,231,0.2);}
+  .carousel-viewport img{width:100%;height:100%;object-fit:contain;display:block;background:#0d1f14;}
+  .carousel-card.expanded .carousel-viewport{aspect-ratio:auto;height:88vh;max-height:88vh;}
+  .carousel-controls{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+  .carousel-btn{background:rgba(245,243,231,0.1);border:1px solid rgba(245,243,231,0.4);color:var(--chalk-white);
+    border-radius:8px;padding:6px 12px;cursor:pointer;font-size:1rem;}
+  .carousel-btn:hover{background:rgba(255,230,109,0.2);}
+  .carousel-dots{display:flex;gap:6px;}
+  .carousel-dot{width:8px;height:8px;border-radius:50%;background:rgba(245,243,231,0.3);cursor:pointer;}
+  .carousel-dot.active{background:var(--chalk-yellow);}
+  .carousel-caption{font-size:0.8rem;color:rgba(245,243,231,0.6);margin-top:6px;text-align:center;}
+
+  /* ---------- interactive area ---------- */
+  .interactive-area{flex:1;display:flex;flex-direction:column;gap:12px;font-size:0.92rem;line-height:1.6;}
+  .iv-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .iv-btn{
+    background:rgba(245,243,231,0.08);border:1.5px solid rgba(245,243,231,0.5);color:var(--chalk-white);
+    border-radius:8px;padding:7px 12px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:0.85rem;
+    transition:.15s;
+  }
+  .iv-btn:hover{border-color:var(--chalk-yellow);}
+  .iv-btn.active{background:var(--chalk-yellow);color:#1f3d2b;border-color:var(--chalk-yellow);font-weight:700;}
+  .iv-panel{background:rgba(0,0,0,0.2);border:1px dashed rgba(245,243,231,0.35);border-radius:10px;padding:12px;flex:1;}
+  .iv-bar-wrap{display:flex;align-items:flex-end;gap:16px;height:140px;margin:14px 0 6px;padding:0 8px;}
+  .iv-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
+  .iv-bar-fill{width:100%;max-width:46px;background:linear-gradient(180deg,var(--chalk-yellow),#c9a634);border-radius:6px 6px 0 0;transition:height .5s ease;box-shadow:0 0 8px rgba(255,230,109,0.3);}
+  .iv-bar-label{margin-top:6px;font-size:0.78rem;text-align:center;color:rgba(245,243,231,0.85);}
+  .iv-bar-value{font-size:0.85rem;font-weight:700;color:var(--chalk-yellow);margin-bottom:4px;}
+  input[type=range]{width:100%;accent-color:var(--chalk-yellow);}
+  .iv-temp-track{position:relative;height:34px;border-radius:8px;background:linear-gradient(90deg,#3a6ff0,#8de08d 25%,var(--chalk-yellow) 45%,#ff9f43 60%,var(--chalk-red) 100%);margin:12px 0 4px;}
+  .iv-temp-marker{position:absolute;top:-8px;width:4px;height:50px;background:var(--chalk-white);box-shadow:0 0 6px #fff;transition:left .25s;}
+  .iv-danger-zone{position:absolute;top:0;bottom:0;background:rgba(255,255,255,0.18);border-left:1px dashed #fff;border-right:1px dashed #fff;}
+  .iv-msg{margin-top:10px;padding:10px;border-radius:8px;font-weight:700;text-align:center;font-size:0.95rem;transition:.3s;}
+  .iv-msg.danger{background:rgba(255,123,123,0.18);color:var(--chalk-red);border:1px dashed var(--chalk-red);}
+  .iv-msg.safe{background:rgba(141,224,141,0.15);color:var(--chalk-green);border:1px dashed var(--chalk-green);}
+  .iv-check{display:flex;align-items:center;gap:6px;font-size:0.85rem;cursor:pointer;user-select:none;}
+  .iv-dots-move{position:relative;height:90px;background:rgba(0,0,0,0.15);border-radius:8px;overflow:hidden;margin:8px 0;}
+  .iv-dot{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--chalk-pink);top:40px;left:10px;transition:left 1.4s ease, top 1.4s ease, opacity .4s;box-shadow:0 0 6px var(--chalk-pink);}
+  .iv-filter-box{position:absolute;right:10px;top:10px;bottom:10px;width:70px;border:2px dashed var(--chalk-blue);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:var(--chalk-blue);text-align:center;}
+  .iv-source-box{position:absolute;left:10px;top:10px;bottom:10px;width:70px;border:2px dashed var(--chalk-red);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:var(--chalk-red);text-align:center;}
+  .iv-zone-diagram{display:flex;gap:8px;margin-top:6px;}
+  .iv-zone{flex:1;border:1.5px solid rgba(245,243,231,0.4);border-radius:8px;padding:10px 6px;text-align:center;cursor:pointer;font-size:0.78rem;transition:.15s;}
+  .iv-zone:hover, .iv-zone.active{border-color:var(--chalk-yellow);background:rgba(255,230,109,0.1);}
+  .iv-zone .iv-zone-temp{font-weight:700;color:var(--chalk-yellow);display:block;margin:4px 0;}
+  .iv-detail{margin-top:10px;font-size:0.85rem;background:rgba(0,0,0,0.15);border-radius:8px;padding:10px;min-height:60px;}
+
+  /* ---------- quiz ---------- */
+  .quiz-area{flex:1;display:flex;flex-direction:column;gap:10px;}
+  .quiz-q{font-size:0.95rem;font-weight:700;color:var(--chalk-white);}
+  .quiz-opt{
+    display:block;width:100%;text-align:left;background:rgba(245,243,231,0.06);
+    border:1.5px solid rgba(245,243,231,0.4);color:var(--chalk-white);border-radius:8px;
+    padding:9px 12px;margin-bottom:7px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:0.87rem;
+  }
+  .quiz-opt:hover{border-color:var(--chalk-yellow);}
+  .quiz-opt.correct{background:rgba(141,224,141,0.25);border-color:var(--chalk-green);}
+  .quiz-opt.wrong{background:rgba(255,123,123,0.25);border-color:var(--chalk-red);}
+  .quiz-opt[disabled]{cursor:default;}
+  .quiz-feedback{font-size:0.85rem;padding:8px;border-radius:8px;background:rgba(0,0,0,0.2);display:none;}
+  .quiz-feedback.show{display:block;}
+  .teacher-only{display:none;}
+  body.teacher-mode .teacher-only{display:block;}
+  body.teacher-mode .quiz-opt.answer-key{outline:2px solid var(--chalk-yellow);}
+  .teacher-badge{display:none;background:var(--chalk-yellow);color:#1f3d2b;font-size:0.7rem;padding:2px 8px;border-radius:999px;font-weight:700;margin-left:6px;}
+  body.teacher-mode .teacher-badge{display:inline-block;}
+
+  .teacher-note{
+    margin-top:16px;padding:14px 16px;border:2px dashed var(--chalk-yellow);border-radius:12px;
+    background:rgba(255,230,109,0.06);font-size:0.88rem;line-height:1.7;color:var(--chalk-yellow);
+  }
+
+  /* ---------- floating tool panel ---------- */
+  .tool-panel{
+    position:fixed;right:18px;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:12px;z-index:40;
+  }
+  .tool-toggle{
+    width:64px;background:rgba(31,61,43,0.9);border:2px solid var(--wood1);border-radius:14px;
+    color:var(--chalk-white);padding:10px 4px;cursor:pointer;font-size:1.4rem;
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+    box-shadow:2px 3px 8px rgba(0,0,0,0.35);
+  }
+  .tool-toggle span{font-size:0.65rem;font-family:'Noto Sans TC',sans-serif;}
+  .tool-toggle:hover, .tool-toggle.on{border-color:var(--chalk-yellow);color:var(--chalk-yellow);}
+
+  .floating-panel{
+    position:fixed;right:96px;top:50%;transform:translateY(-50%);
+    width:300px;max-height:80vh;overflow:auto;
+    background:var(--board2);border:2px solid var(--wood1);border-radius:14px;
+    padding:16px;z-index:41;box-shadow:4px 6px 18px rgba(0,0,0,0.45);
+    display:none;
+  }
+  .floating-panel.open{display:block;}
+  .floating-panel h4{margin:0 0 10px;color:var(--chalk-yellow);display:flex;justify-content:space-between;align-items:center;}
+  .fp-close{background:none;border:none;color:var(--chalk-white);font-size:1.1rem;cursor:pointer;}
+  .picker-range{display:flex;gap:14px;margin-bottom:4px;}
+  .picker-range label{display:flex;align-items:center;gap:6px;font-size:0.85rem;color:rgba(245,243,231,0.85);}
+  .picker-range input{width:64px;background:rgba(0,0,0,0.25);color:var(--chalk-white);border:1px dashed rgba(245,243,231,0.4);border-radius:8px;padding:6px 8px;font-family:'Noto Sans TC',sans-serif;font-size:0.95rem;}
+  .picker-result{margin-top:12px;text-align:center;font-size:2.2rem;font-family:'Zhi Mang Xing',sans-serif;color:var(--chalk-yellow);min-height:44px;}
+  .full-btn{width:100%;margin-top:8px;background:var(--chalk-yellow);color:#1f3d2b;border:none;border-radius:8px;padding:9px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;}
+  .full-btn.secondary{background:transparent;color:var(--chalk-white);border:1.5px solid rgba(245,243,231,0.5);}
+
+  .timer-display{font-size:2.6rem;text-align:center;font-family:'Noto Sans TC',sans-serif;font-weight:700;margin:10px 0;color:var(--chalk-white);}
+  .timer-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  .timer-presets button{flex:1;min-width:50px;background:rgba(245,243,231,0.08);border:1px solid rgba(245,243,231,0.4);color:var(--chalk-white);border-radius:8px;padding:6px;cursor:pointer;font-size:0.8rem;}
+  .timer-actions{display:flex;gap:8px;margin-top:8px;}
+
+  .pen-colors{display:flex;gap:8px;margin:10px 0;}
+  .pen-color{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,0.5);}
+  .pen-color.active{border-color:var(--chalk-yellow);transform:scale(1.15);}
+
+  #drawCanvas{position:fixed;inset:0;z-index:35;pointer-events:none;}
+  #drawCanvas.active{pointer-events:auto;cursor:crosshair;}
+
+  /* video modal */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:60;}
+  .modal-backdrop.open{display:flex;}
+  .modal-box{background:var(--board2);border:3px solid var(--wood1);border-radius:14px;padding:14px;max-width:92vw;width:900px;}
+  .modal-box .yt-wrap{position:relative;width:100%;padding-top:56.25%;border-radius:8px;overflow:hidden;background:#000;}
+  .modal-box .yt-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .modal-close{display:block;margin:10px auto 0;background:var(--chalk-yellow);color:#1f3d2b;border:none;border-radius:8px;padding:8px 18px;font-weight:700;cursor:pointer;}
+</style>
+</head>
+<body class="teacher-mode">
+
+<header class="cockpit-header">
+  <h1>🎓 焚化爐飛灰防止戴奧辛生成<span>教學駕駛艙 · 黑板粉筆版</span></h1>
+  <div class="header-actions">
+    <button class="asset-btn" id="openVideoBtn">🎬 播放教學影片總覽</button>
+    <button class="asset-btn" id="openPdfBtn">📄 開啟完整簡報 PDF</button>
+    <div class="mode-switch">
+      <button class="mode-btn active" id="teacherBtn">👩‍🏫 教師模式</button>
+      <button class="mode-btn" id="studentBtn">🧑‍🎓 學生模式</button>
+    </div>
+  </div>
+</header>
+<div class="scroll-hint">↓ 由上往下捲動瀏覽 7 個教學重點，或點左側圓鈕快速跳轉 ↓</div>
+
+<nav class="side-nav" id="sideNav"></nav>
+
+<main class="cockpit-main" id="cockpitMain"></main>
+
+<aside class="tool-panel">
+  <button class="tool-toggle" data-tool="draw">🎯<span>抽籤</span></button>
+  <button class="tool-toggle" data-tool="timer">⏱️<span>計時器</span></button>
+  <button class="tool-toggle" data-tool="pen">✏️<span>畫筆</span></button>
+</aside>
+
+<div class="floating-panel" id="drawPanel">
+  <h4>🎯 隨機抽籤 <button class="fp-close" data-close="drawPanel">✕</button></h4>
+  <p style="font-size:0.8rem;color:rgba(245,243,231,0.7);margin:0 0 8px;">輸入座號範圍（可自由填寫）：</p>
+  <div class="picker-range">
+    <label>從 <input type="number" id="pickerMin" value="1"></label>
+    <label>到 <input type="number" id="pickerMax" value="30"></label>
+  </div>
+  <button class="full-btn" id="drawGoBtn">🎲 開始抽籤</button>
+  <div class="picker-result" id="pickerResult">—</div>
+</div>
+
+<div class="floating-panel" id="timerPanel">
+  <h4>⏱️ 計時器 <button class="fp-close" data-close="timerPanel">✕</button></h4>
+  <div class="timer-display" id="timerDisplay">05:00</div>
+  <div class="timer-presets">
+    <button data-sec="60">1分</button>
+    <button data-sec="180">3分</button>
+    <button data-sec="300">5分</button>
+    <button data-sec="600">10分</button>
+  </div>
+  <div class="timer-actions">
+    <button class="full-btn" id="timerStart">開始</button>
+    <button class="full-btn secondary" id="timerReset">重設</button>
+  </div>
+</div>
+
+<div class="floating-panel" id="penPanel">
+  <h4>✏️ 黑板畫筆 <button class="fp-close" data-close="penPanel">✕</button></h4>
+  <p style="font-size:0.8rem;color:rgba(245,243,231,0.7);margin:0 0 6px;">開啟後可直接在畫面上手繪標註</p>
+  <button class="full-btn" id="penToggleBtn">🖊️ 開啟畫筆模式</button>
+  <div class="pen-colors">
+    <div class="pen-color active" style="background:#f5f3e7" data-color="#f5f3e7"></div>
+    <div class="pen-color" style="background:#ffe66d" data-color="#ffe66d"></div>
+    <div class="pen-color" style="background:#ff6b9d" data-color="#ff6b9d"></div>
+    <div class="pen-color" style="background:#7ec8ff" data-color="#7ec8ff"></div>
+  </div>
+  <button class="full-btn secondary" id="penClearBtn">🧹 清除畫面</button>
+</div>
+
+<canvas id="drawCanvas"></canvas>
+
+<div class="modal-backdrop" id="videoModal">
+  <div class="modal-box">
+    <div class="yt-wrap">
+      <iframe id="ytFrame" src="" title="教學影片總覽" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+    <button class="modal-close" data-close-modal="videoModal">關閉</button>
+  </div>
+</div>
+
+<script>
+const YOUTUBE_ID = "9q2RHkgZOaI";
+
+/* ================= 資料：7 個教學重點 ================= */
+const POINTS = [
+  {
+    id:1,
+    title:"重點1・垃圾大火後的隱形殺手：戴奧辛",
+    desc:"焚化爐雖能大幅減少垃圾體積，燃燒後的飛灰裡卻藏著世紀之毒戴奧辛，性質穩定、不易分解，會透過食物鏈累積在人體。",
+    slides:["簡報單張圖片/簡報頁面-02.jpg","重點1_戴奧辛是隱形殺手.jpg"],
+    slideCaptions:["NotebookLM 簡報：認識頭號公敵戴奧辛","本重點資訊圖表"],
+    teacherNote:"教學提示：可先問學生「你聽過戴奧辛嗎？在哪裡聽過？」帶出世紀之毒的印象，再連結到食物鏈累積的概念（90% 暴露來自飲食）。",
+    quiz:{
+      q:"戴奧辛主要透過什麼途徑進入人體，佔比超過 90%？",
+      opts:["吸入受污染空氣","攝食受污染食物","皮膚直接接觸"],
+      answer:1,
+      feedback:["這是次要途徑喔，再想想食物鏈的角色。","答對了！戴奧辛具高親脂性，經食物鏈在動物脂肪中累積，人類 90% 以上暴露來自飲食。","這也是次要途徑，主要途徑跟你我的三餐更有關係。"]
+    },
+    render(container){
+      container.innerHTML = `
+        <div class="iv-row" data-role="routes">
+          <button class="iv-btn active" data-route="food">🍖 飲食</button>
+          <button class="iv-btn" data-route="air">💨 吸入空氣</button>
+          <button class="iv-btn" data-route="skin">🖐️ 皮膚接觸</button>
+        </div>
+        <div class="iv-panel">
+          <div class="iv-bar-wrap">
+            <div class="iv-bar"><div class="iv-bar-value" data-role="val">90%+</div><div class="iv-bar-fill" data-role="fill" style="height:90%"></div><div class="iv-bar-label">相對暴露比例</div></div>
+          </div>
+          <div data-role="desc" style="font-size:0.85rem;color:rgba(245,243,231,0.85);"></div>
+        </div>`;
+      const data = {
+        food:{val:"90%＋",height:92,desc:"食物是人類暴露戴奧辛的最主要來源，經由食物攝取可達 90% 以上，因戴奧辛高親脂性，會在動物脂肪中累積並經食物鏈進入人體。"},
+        air:{val:"次要",height:22,desc:"吸入受污染空氣及微粒也是暴露途徑之一，但相較飲食是次要來源。"},
+        skin:{val:"次要",height:15,desc:"經皮膚直接接觸及吸收也可能暴露戴奧辛，同樣屬於次要途徑。"}
+      };
+      const fill=container.querySelector('[data-role=fill]'), val=container.querySelector('[data-role=val]'), desc=container.querySelector('[data-role=desc]');
+      desc.textContent = data.food.desc;
+      container.querySelectorAll('[data-role=routes] .iv-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          container.querySelectorAll('[data-role=routes] .iv-btn').forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          const d = data[btn.dataset.route];
+          fill.style.height = d.height+'%';
+          val.textContent = d.val;
+          desc.textContent = d.desc;
+        });
+      });
+    }
+  },
+  {
+    id:2,
+    title:"重點2・戴奧辛是怎麼跑出來的？（低溫再合成）",
+    desc:"戴奧辛不一定在高溫燃燒時直接生成，很多時候是廢氣冷卻到 250–400℃ 時，在飛灰表面被金屬催化劑重新合成。",
+    slides:["簡報單張圖片/簡報頁面-03.jpg","重點2_低溫再合成機制.jpg"],
+    slideCaptions:["NotebookLM 簡報：可怕的低溫再生成","本重點資訊圖表"],
+    teacherNote:"教學提示：用「拖曳溫度滑桿」讓學生實際感受 250-400℃ 危險區間，並嘗試拿掉任一項必要成分（碳源／氯源／氧氣／金屬觸媒），體會「缺一不可」的反應概念。",
+    quiz:{
+      q:"戴奧辛「低溫再合成」最容易發生在什麼溫度範圍？",
+      opts:["800℃ 以上的燃燒室","250–400℃ 的降溫區段","0–100℃ 的常溫環境"],
+      answer:1,
+      feedback:["這個溫度戴奧辛反而會被破壞分解喔。","答對了！廢氣離開燃燒室後冷卻到 250–400℃，飛灰中的碳、氯遇到金屬催化劑就會重新合成戴奧辛。","溫度太低，反應動能不足，不是主要生成區間。"]
+    },
+    render(container){
+      container.innerHTML = `
+        <div style="font-size:0.85rem;color:rgba(245,243,231,0.85);">拖曳滑桿模擬廢氣冷卻過程：</div>
+        <input type="range" data-role="temp" min="0" max="1000" value="500">
+        <div class="iv-temp-track">
+          <div class="iv-danger-zone" style="left:25%;width:15%;"></div>
+          <div class="iv-temp-marker" data-role="marker" style="left:50%;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:rgba(245,243,231,0.6);">
+          <span>0℃</span><span>危險區 250-400℃</span><span>1000℃</span>
+        </div>
+        <div class="iv-msg" data-role="msg"></div>
+        <div class="iv-row" style="margin-top:8px;">
+          <label class="iv-check"><input type="checkbox" data-role="c" checked> 碳源(C)</label>
+          <label class="iv-check"><input type="checkbox" data-role="cl" checked> 氯源(Cl)</label>
+          <label class="iv-check"><input type="checkbox" data-role="o2" checked> 氧氣(O₂)</label>
+          <label class="iv-check"><input type="checkbox" data-role="m" checked> 金屬觸媒</label>
+        </div>`;
+      const temp=container.querySelector('[data-role=temp]'), marker=container.querySelector('[data-role=marker]'), msg=container.querySelector('[data-role=msg]');
+      const checks=['c','cl','o2','m'].map(s=>container.querySelector(`[data-role=${s}]`));
+      function update(){
+        const t=+temp.value;
+        marker.style.left = (t/1000*100)+'%';
+        const inDanger = t>=250 && t<=400;
+        const allPresent = checks.every(c=>c.checked);
+        if(inDanger && allPresent){
+          msg.className='iv-msg danger';
+          msg.textContent = `⚠️ ${t}℃・所有反應物齊全 → 戴奧辛正在低溫再合成！`;
+        } else if(inDanger && !allPresent){
+          msg.className='iv-msg safe';
+          msg.textContent = `✅ ${t}℃ 雖在危險區，但已缺少必要成分 → 反應無法進行`;
+        } else if(t>800){
+          msg.className='iv-msg safe';
+          msg.textContent = `✅ ${t}℃・高溫燃燒區，戴奧辛會被破壞分解`;
+        } else {
+          msg.className='iv-msg safe';
+          msg.textContent = `${t}℃・未達低溫再合成溫度區間`;
+        }
+      }
+      temp.addEventListener('input',update);
+      checks.forEach(c=>c.addEventListener('change',update));
+      update();
+    }
+  },
+  {
+    id:3,
+    title:"重點3・現有處理方法的困境",
+    desc:"目前最常見的方式是用活性碳吸附煙氣中的戴奧辛，但這其實只是「轉移」污染物位置，並未真正消滅，還可能造成二次污染與高昂成本。",
+    slides:["簡報單張圖片/簡報頁面-04.jpg","重點3_現有處理方法的困境.jpg"],
+    slideCaptions:["NotebookLM 簡報：活性碳吸附法的漏洞","本重點資訊圖表"],
+    teacherNote:"教學提示：按下「啟動吸附模擬」後，觀察戴奧辛分子從氣相移動到活性碳固體，強調「轉移不等於消滅」，帶出下一重點「源頭抑制」的動機。",
+    quiz:{
+      q:"活性碳吸附法處理戴奧辛，主要的缺點是什麼？",
+      opts:["會把戴奧辛完全分解成無害物質","只是把戴奧辛從氣體轉移到固體，可能造成二次污染","完全沒有任何成本"],
+      answer:1,
+      feedback:["可惜，活性碳並不會分解戴奧辛。","答對了！用過的活性碳若掩埋，恐污染土壤與地下水，且大量使用活性碳成本很高。","實際上活性碳用量大，成本反而不低。"]
+    },
+    render(container){
+      container.innerHTML = `
+        <button class="iv-btn active" data-role="run">▶️ 啟動吸附模擬</button>
+        <div class="iv-dots-move" data-role="stage">
+          <div class="iv-source-box">煙道氣體<br>（戴奧辛）</div>
+          <div class="iv-filter-box">活性碳<br>吸附</div>
+        </div>
+        <div class="iv-msg safe">戴奧辛只是「搬家」，從氣體轉移到固體飛灰／活性碳中，並沒有真正消滅。</div>`;
+      const stage = container.querySelector('[data-role=stage]');
+      const btn = container.querySelector('[data-role=run]');
+      btn.addEventListener('click',()=>{
+        stage.querySelectorAll('.iv-dot').forEach(d=>d.remove());
+        for(let i=0;i<6;i++){
+          const dot=document.createElement('div');
+          dot.className='iv-dot';
+          dot.style.top = (10+Math.random()*60)+'px';
+          dot.style.left = '20px';
+          stage.appendChild(dot);
+          setTimeout(()=>{ dot.style.left = 'calc(100% - 90px)'; }, 80*i+50);
+        }
+      });
+    }
+  },
+  {
+    id:4,
+    title:"重點4・破解生成任務：抑制劑的登場",
+    desc:"與其事後吸附，不如從源頭阻止！在飛灰中加入含氮或含硫抑制劑，主動消耗生成戴奧辛必備的氯源，或讓金屬觸媒失去催化能力。",
+    slides:["簡報單張圖片/簡報頁面-05.jpg","重點4_抑制劑的登場.jpg"],
+    slideCaptions:["NotebookLM 簡報：化學抑制劑的雙重防禦魔法","本重點資訊圖表"],
+    teacherNote:"教學提示：切換「含氮」與「含硫」兩種機制，讓學生理解兩條不同路線都能達到同一個目的——讓戴奧辛「生不出來」。",
+    quiz:{
+      q:"含硫抑制劑主要透過什麼方式抑制戴奧辛生成？",
+      opts:["提高反應溫度","讓金屬觸媒失去催化活性","增加環境中的氯源"],
+      answer:1,
+      feedback:["溫度不是含硫抑制劑的作用機制喔。","答對了！含硫物質會把金屬氯化物轉化成硫酸鹽，使觸媒失去催化能力，讓反應停擺。","增加氯源反而會助長生成，方向相反了。"]
+    },
+    render(container){
+      container.innerHTML = `
+        <div class="iv-row">
+          <button class="iv-btn active" data-m="n">🛡️ 含氮抑制劑（N）</button>
+          <button class="iv-btn" data-m="s">🛡️ 含硫抑制劑（S）</button>
+        </div>
+        <div class="iv-panel" data-role="panel"></div>`;
+      const data = {
+        n:{title:"含氮抑制劑：斷絕糧草",desc:"含氮基團（如氨氣、尿素分解物）會搶先與環境中的氯（Cl）反應，耗盡氯源，讓戴奧辛拿不到形成所需的「氯」這個關鍵武裝。"},
+        s:{title:"含硫抑制劑：廢掉武功",desc:"含硫物質（如二氧化硫）會直接攻擊過渡金屬觸媒（如 Cu），將其轉化成無法催化的硫酸鹽，使合成反應被迫全面停擺。"}
+      };
+      const panel = container.querySelector('[data-role=panel]');
+      function render(key){
+        const d=data[key];
+        panel.innerHTML = `<strong style="color:var(--chalk-yellow)">${d.title}</strong><p style="margin:8px 0 0;font-size:0.85rem;line-height:1.7;">${d.desc}</p>`;
+      }
+      container.querySelectorAll('.iv-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          container.querySelectorAll('.iv-btn').forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          render(btn.dataset.m);
+        });
+      });
+      render('n');
+    }
+  },
+  {
+    id:5,
+    title:"重點5・尋找最佳解藥（一）硫酸銨的表現",
+    desc:"硫酸銨在較高溫或缺氧環境下表現不錯：加入約 10.4% 就能大幅削減戴奧辛毒性當量，磷酸二銨則幾乎沒有效果。",
+    slides:["簡報單張圖片/簡報頁面-06.jpg","重點5_硫酸銨的表現.jpg"],
+    slideCaptions:["NotebookLM 簡報：實測一號硫酸銨","本重點資訊圖表"],
+    teacherNote:"教學提示：切換兩種反應條件，觀察添加量從 0% 拉高到 10.4% 時抑制率的跳躍變化，帶出「並非加越多線性提升，需達到門檻濃度」的概念。",
+    quiz:{
+      q:"硫酸銨在缺氧、250℃環境下，添加多少比例能達到約 78% 的 I-TEQ 削減率？",
+      opts:["1.75%","5.21%","10.4%"],
+      answer:2,
+      feedback:["這個添加量效果還不明顯。","這個添加量效果仍不理想。","答對了！添加 10.4% 硫酸銨、250℃缺氧環境下，I-TEQ 削減率可達 78.1%。"]
+    },
+    render(container){
+      container.innerHTML = `
+        <div class="iv-row">
+          <button class="iv-btn active" data-c="anox">🌡️ 250℃・缺氧環境</button>
+          <button class="iv-btn" data-c="air">🌡️ 350℃・有空氣環境</button>
+        </div>
+        <div class="iv-panel">
+          <div class="iv-bar-wrap" data-role="bars"></div>
+          <div style="font-size:0.78rem;color:rgba(245,243,231,0.7);text-align:center;">添加量 (%) → PCDD/Fs I-TEQ 削減率</div>
+        </div>`;
+      const data = {
+        anox:[{l:"0%",v:0},{l:"1.75%",v:3},{l:"10.4%",v:78.1}],
+        air:[{l:"0%",v:0},{l:"1.75%",v:2},{l:"10.4%",v:71}]
+      };
+      const bars = container.querySelector('[data-role=bars]');
+      function render(key){
+        bars.innerHTML='';
+        data[key].forEach(d=>{
+          const bar=document.createElement('div');
+          bar.className='iv-bar';
+          bar.innerHTML = `<div class="iv-bar-value">${d.v}%</div><div class="iv-bar-fill" style="height:${Math.max(d.v,3)}%"></div><div class="iv-bar-label">${d.l}</div>`;
+          bars.appendChild(bar);
+        });
+      }
+      container.querySelectorAll('.iv-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          container.querySelectorAll('.iv-btn').forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          render(btn.dataset.c);
+        });
+      });
+      render('anox');
+    }
+  },
+  {
+    id:6,
+    title:"重點6・尋找最佳解藥（二）超級小幫手硫脲",
+    desc:"硫脲是實驗中表現最亮眼的抑制劑：有空氣、300℃下，只需 1–3% 就能減少約 80% 戴奧辛毒性，效果遠勝其他兩種抑制劑。",
+    slides:["簡報單張圖片/簡報頁面-07.jpg","簡報單張圖片/簡報頁面-08.jpg","重點6_硫脲的表現.jpg"],
+    slideCaptions:["NotebookLM 簡報：終極王牌硫脲的極致表現","NotebookLM 簡報：抑制劑超級比一比","本重點資訊圖表"],
+    teacherNote:"教學提示：讓學生自己切換溫度（100/200/300℃）與添加量（1/2/3%），親自「找出」300℃是最佳反應溫度，比直接告知答案更有記憶點。",
+    quiz:{
+      q:"硫脲在哪個溫度下抑制戴奧辛的效果最好？",
+      opts:["100℃","200℃","300℃"],
+      answer:2,
+      feedback:["這個溫度硫脲還沒完全分解出有效物種。","這個溫度下效果不穩定，甚至可能生成量上升。","答對了！300℃時硫脲能完全分解出硫、氮物種，抑制率可達 75.8%–80.6%。"]
+    },
+    render(container){
+      container.innerHTML = `
+        <div class="iv-row">
+          <span style="font-size:0.8rem;align-self:center;">溫度：</span>
+          <button class="iv-btn active" data-t="100">100℃</button>
+          <button class="iv-btn" data-t="200">200℃</button>
+          <button class="iv-btn" data-t="300">300℃</button>
+        </div>
+        <div class="iv-panel">
+          <div class="iv-bar-wrap" data-role="bars"></div>
+          <div style="font-size:0.78rem;color:rgba(245,243,231,0.7);text-align:center;">硫脲添加量 (%) → PCDD/Fs I-TEQ 削減率</div>
+        </div>`;
+      const data = {
+        100:[{l:"1%",v:21.5},{l:"2%",v:11.1},{l:"3%",v:26.3}],
+        200:[{l:"1%",v:1.1},{l:"2%",v:16.5},{l:"3%",v:4.3}],
+        300:[{l:"1%",v:75.8},{l:"2%",v:80.6},{l:"3%",v:79.2}]
+      };
+      const bars = container.querySelector('[data-role=bars]');
+      function render(t){
+        bars.innerHTML='';
+        data[t].forEach(d=>{
+          const bar=document.createElement('div');
+          bar.className='iv-bar';
+          bar.innerHTML = `<div class="iv-bar-value">${d.v}%</div><div class="iv-bar-fill" style="height:${Math.max(d.v,3)}%"></div><div class="iv-bar-label">${d.l}</div>`;
+          bars.appendChild(bar);
+        });
+      }
+      container.querySelectorAll('.iv-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          container.querySelectorAll('.iv-btn').forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          render(btn.dataset.t);
+        });
+      });
+      render(300);
+    }
+  },
+  {
+    id:7,
+    title:"重點7・研究成果的實際應用",
+    desc:"硫脲適合噴注在焚化爐約 300℃ 的節熱器降溫區段；硫酸銨則適合處理已生成的飛灰，放入缺氧密閉反應爐中加熱減毒。",
+    slides:["簡報單張圖片/簡報頁面-09.jpg","簡報單張圖片/簡報頁面-10.jpg","重點7_研究成果的實際應用.jpg"],
+    slideCaptions:["NotebookLM 簡報：焚化廠的終極部署藍圖","NotebookLM 簡報：本課重點回顧","本重點資訊圖表"],
+    teacherNote:"教學提示：點選流程圖上的三個區域，讓學生連結「溫度區段」與「該用哪種抑制劑」，統整整份研究的實務應用邏輯。",
+    quiz:{
+      q:"硫脲最適合噴注在焚化爐的哪個位置？",
+      opts:["高溫燃燒室（800℃以上）","節熱器降溫區段（約300℃）","煙囪出口"],
+      answer:1,
+      feedback:["這裡溫度太高，戴奧辛本來就會被破壞，不需要在此噴注。","答對了！節熱器操作溫度約 300-350℃，是硫脲發揮最佳抑制效果的區段。","煙囪出口不是主要的低溫再合成反應區。"]
+    },
+    render(container){
+      container.innerHTML = `
+        <div class="iv-zone-diagram">
+          <div class="iv-zone active" data-z="burn">🔥 燃燒室<span class="iv-zone-temp">&gt;800℃</span></div>
+          <div class="iv-zone" data-z="eco">🌀 節熱器<span class="iv-zone-temp">約300℃</span></div>
+          <div class="iv-zone" data-z="ash">🗑️ 飛灰反應爐<span class="iv-zone-temp">250℃缺氧</span></div>
+        </div>
+        <div class="iv-detail" data-role="detail"></div>`;
+      const data = {
+        burn:"高溫燃燒區：戴奧辛在此會被破壞分解，不是抑制劑投放的重點區域。",
+        eco:"節熱器降溫區（約300-350℃）：可噴注 1-3% 硫脲，抑制過渡金屬觸媒反應，I-TEQ 削減率可達 75.8-80.6%，是大型都市垃圾焚化廠生成 PCDD/Fs 的關鍵操作單元。",
+        ash:"飛灰處理反應爐：將已生成的飛灰加入約 10.4% 硫酸銨，於無空氣（缺氧）密閉反應器中加熱至 250℃，可削減約 78.1% 的 I-TEQ 毒性當量。"
+      };
+      const detail = container.querySelector('[data-role=detail]');
+      function render(z){ detail.textContent = data[z]; }
+      container.querySelectorAll('.iv-zone').forEach(z=>{
+        z.addEventListener('click',()=>{
+          container.querySelectorAll('.iv-zone').forEach(x=>x.classList.remove('active'));
+          z.classList.add('active');
+          render(z.dataset.z);
+        });
+      });
+      render('burn');
+    }
+  }
+];
+
+/* ================= 建立側邊導覽 + 直式區塊 ================= */
+const sideNav = document.getElementById('sideNav');
+const main = document.getElementById('cockpitMain');
+
+POINTS.forEach((p,i)=>{
+  // side nav button
+  const navBtn = document.createElement('button');
+  navBtn.textContent = p.id;
+  navBtn.dataset.idx = i;
+  const label = document.createElement('span');
+  label.className = 'side-nav-label';
+  label.textContent = p.title.split('・')[1];
+  navBtn.appendChild(label);
+  navBtn.addEventListener('click',()=>{
+    document.getElementById('section-'+p.id).scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  sideNav.appendChild(navBtn);
+
+  // section
+  const section = document.createElement('section');
+  section.className = 'point-section';
+  section.id = 'section-'+p.id;
+  section.innerHTML = `
+    <h2>${p.title}</h2>
+    <p class="desc">${p.desc}</p>
+    <div class="panel-grid">
+      <div class="panel-card carousel-card" data-role="carousel-card">
+        <h3>📽️ NotebookLM 簡報輪播 <button class="carousel-expand-btn" data-role="expand">⤢ 放大顯示</button></h3>
+        <div class="carousel">
+          <div class="carousel-viewport"><img data-role="img" src="" alt=""></div>
+          <div class="carousel-controls">
+            <button class="carousel-btn" data-role="prev">◀ 上一頁</button>
+            <div class="carousel-dots" data-role="dots"></div>
+            <button class="carousel-btn" data-role="next">下一頁 ▶</button>
+          </div>
+          <div class="carousel-caption" data-role="caption"></div>
+        </div>
+      </div>
+      <div class="lower-grid">
+        <div class="panel-card">
+          <h3>🧪 互動視覺化</h3>
+          <div class="interactive-area" data-role="interactive"></div>
+        </div>
+        <div class="panel-card">
+          <h3>✅ 形成性評量</h3>
+          <div class="quiz-area" data-role="quiz"></div>
+        </div>
+      </div>
+    </div>
+    <div class="teacher-note teacher-only">👩‍🏫 ${p.teacherNote}</div>
+  `;
+  main.appendChild(section);
+
+  // carousel behaviour (scoped to this section)
+  let carIdx = 0;
+  const imgEl = section.querySelector('[data-role=img]');
+  const capEl = section.querySelector('[data-role=caption]');
+  const dotsEl = section.querySelector('[data-role=dots]');
+  function renderCarousel(){
+    imgEl.src = p.slides[carIdx];
+    capEl.textContent = p.slideCaptions[carIdx];
+    dotsEl.innerHTML='';
+    p.slides.forEach((_,idx)=>{
+      const d=document.createElement('div');
+      d.className='carousel-dot'+(idx===carIdx?' active':'');
+      d.addEventListener('click',()=>{ carIdx=idx; renderCarousel(); });
+      dotsEl.appendChild(d);
+    });
+  }
+  section.querySelector('[data-role=prev]').addEventListener('click',()=>{
+    carIdx=(carIdx-1+p.slides.length)%p.slides.length; renderCarousel();
+  });
+  section.querySelector('[data-role=next]').addEventListener('click',()=>{
+    carIdx=(carIdx+1)%p.slides.length; renderCarousel();
+  });
+  renderCarousel();
+
+  const carouselCard = section.querySelector('[data-role=carousel-card]');
+  const expandBtn = section.querySelector('[data-role=expand]');
+  expandBtn.addEventListener('click',()=>{
+    const isExpanded = carouselCard.classList.toggle('expanded');
+    expandBtn.textContent = isExpanded ? '⤡ 恢復原尺寸' : '⤢ 放大顯示';
+  });
+
+  // interactive
+  p.render(section.querySelector('[data-role=interactive]'));
+
+  // quiz
+  const quizArea = section.querySelector('[data-role=quiz]');
+  quizArea.innerHTML = `
+    <div class="quiz-q">${p.quiz.q} <span class="teacher-badge">教師可見答案</span></div>
+    <div data-role="opts"></div>
+    <div class="quiz-feedback" data-role="feedback"></div>`;
+  const optsEl = quizArea.querySelector('[data-role=opts]');
+  p.quiz.opts.forEach((opt,oi)=>{
+    const b=document.createElement('button');
+    b.className='quiz-opt'+(oi===p.quiz.answer?' answer-key':'');
+    b.textContent = opt;
+    b.addEventListener('click',()=>{
+      optsEl.querySelectorAll('.quiz-opt').forEach(o=>o.disabled=true);
+      b.classList.add(oi===p.quiz.answer?'correct':'wrong');
+      if(oi!==p.quiz.answer){ optsEl.children[p.quiz.answer].classList.add('correct'); }
+      const fb = quizArea.querySelector('[data-role=feedback]');
+      fb.textContent = p.quiz.feedback[oi];
+      fb.classList.add('show');
+    });
+    optsEl.appendChild(b);
+  });
+});
+
+/* ---- 捲動同步側邊導覽高亮 (scroll-spy) ---- */
+const sections = Array.from(document.querySelectorAll('.point-section'));
+const navBtns = Array.from(sideNav.querySelectorAll('button'));
+const spy = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const idx = sections.indexOf(entry.target);
+      navBtns.forEach(b=>b.classList.remove('active'));
+      if(navBtns[idx]) navBtns[idx].classList.add('active');
+    }
+  });
+},{rootMargin:'-35% 0px -55% 0px',threshold:0});
+sections.forEach(s=>spy.observe(s));
+if(navBtns[0]) navBtns[0].classList.add('active');
+
+/* ================= 教師／學生模式 ================= */
+document.getElementById('teacherBtn').addEventListener('click',()=>{
+  document.body.classList.add('teacher-mode');
+  document.getElementById('teacherBtn').classList.add('active');
+  document.getElementById('studentBtn').classList.remove('active');
+});
+document.getElementById('studentBtn').addEventListener('click',()=>{
+  document.body.classList.remove('teacher-mode');
+  document.getElementById('studentBtn').classList.add('active');
+  document.getElementById('teacherBtn').classList.remove('active');
+});
+
+/* ================= 影片 (YouTube) / PDF 開啟 ================= */
+document.getElementById('openVideoBtn').addEventListener('click',()=>{
+  document.getElementById('ytFrame').src = `https://www.youtube.com/embed/${YOUTUBE_ID}?autoplay=1`;
+  document.getElementById('videoModal').classList.add('open');
+});
+document.querySelectorAll('[data-close-modal]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.getElementById(b.dataset.closeModal).classList.remove('open');
+    document.getElementById('ytFrame').src = '';
+  });
+});
+document.getElementById('openPdfBtn').addEventListener('click',()=>{
+  window.open('01_教學簡報.pdf','_blank');
+});
+
+/* ================= 浮動工具列 ================= */
+document.querySelectorAll('.tool-toggle').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const tool = btn.dataset.tool;
+    const panelId = tool==='draw'?'drawPanel':tool==='timer'?'timerPanel':'penPanel';
+    const panel = document.getElementById(panelId);
+    const isOpen = panel.classList.contains('open');
+    document.querySelectorAll('.floating-panel').forEach(p=>p.classList.remove('open'));
+    document.querySelectorAll('.tool-toggle').forEach(b=>b.classList.remove('on'));
+    if(!isOpen){ panel.classList.add('open'); btn.classList.add('on'); }
+  });
+});
+document.querySelectorAll('.fp-close').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.getElementById(b.dataset.close).classList.remove('open');
+    document.querySelectorAll('.tool-toggle').forEach(x=>x.classList.remove('on'));
+  });
+});
+
+/* ---- 抽籤（數字範圍） ---- */
+document.getElementById('drawGoBtn').addEventListener('click',()=>{
+  let min = parseInt(document.getElementById('pickerMin').value,10);
+  let max = parseInt(document.getElementById('pickerMax').value,10);
+  if(isNaN(min) || isNaN(max)) return;
+  if(min>max){ [min,max]=[max,min]; }
+  const resultEl = document.getElementById('pickerResult');
+  let count=0;
+  const iv = setInterval(()=>{
+    resultEl.textContent = Math.floor(Math.random()*(max-min+1))+min;
+    count++;
+    if(count>16){
+      clearInterval(iv);
+      resultEl.textContent = '🎉 '+(Math.floor(Math.random()*(max-min+1))+min)+' 號';
+    }
+  },80);
+});
+
+/* ---- 計時器 ---- */
+let timerSeconds = 300, timerInterval = null, timerRunning=false;
+function renderTimer(){
+  const m = Math.floor(timerSeconds/60).toString().padStart(2,'0');
+  const s = (timerSeconds%60).toString().padStart(2,'0');
+  document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+}
+document.querySelectorAll('.timer-presets button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    timerSeconds = +b.dataset.sec;
+    renderTimer();
+  });
+});
+document.getElementById('timerStart').addEventListener('click',(e)=>{
+  if(timerRunning){
+    clearInterval(timerInterval); timerRunning=false; e.target.textContent='開始';
+    return;
+  }
+  timerRunning = true; e.target.textContent='暫停';
+  timerInterval = setInterval(()=>{
+    if(timerSeconds<=0){ clearInterval(timerInterval); timerRunning=false; document.getElementById('timerStart').textContent='開始'; return; }
+    timerSeconds--; renderTimer();
+  },1000);
+});
+document.getElementById('timerReset').addEventListener('click',()=>{
+  clearInterval(timerInterval); timerRunning=false;
+  document.getElementById('timerStart').textContent='開始';
+  timerSeconds=300; renderTimer();
+});
+renderTimer();
+
+/* ---- 畫筆 ---- */
+const canvas = document.getElementById('drawCanvas');
+const ctx = canvas.getContext('2d');
+function resizeCanvas(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+window.addEventListener('resize',resizeCanvas); resizeCanvas();
+let penActive=false, drawing=false, penColor='#f5f3e7';
+document.getElementById('penToggleBtn').addEventListener('click',(e)=>{
+  penActive = !penActive;
+  canvas.classList.toggle('active',penActive);
+  e.target.textContent = penActive? '🛑 關閉畫筆模式' : '🖊️ 開啟畫筆模式';
+});
+document.querySelectorAll('.pen-color').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('.pen-color').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    penColor = c.dataset.color;
+  });
+});
+document.getElementById('penClearBtn').addEventListener('click',()=>ctx.clearRect(0,0,canvas.width,canvas.height));
+canvas.addEventListener('pointerdown',e=>{ if(!penActive) return; drawing=true; ctx.beginPath(); ctx.moveTo(e.clientX,e.clientY); });
+canvas.addEventListener('pointermove',e=>{
+  if(!penActive || !drawing) return;
+  ctx.lineTo(e.clientX,e.clientY);
+  ctx.strokeStyle=penColor; ctx.lineWidth=3.5; ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.stroke();
+});
+window.addEventListener('pointerup',()=>drawing=false);
+</script>
+</body>
+</html>
