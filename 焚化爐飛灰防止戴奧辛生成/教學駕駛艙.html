@@ -245,7 +245,7 @@
   .pen-color.active{border-color:var(--chalk-yellow);transform:scale(1.15);}
 
   #drawCanvas{position:fixed;inset:0;z-index:35;pointer-events:none;}
-  #drawCanvas.active{pointer-events:auto;cursor:crosshair;}
+  #drawCanvas.active{pointer-events:auto;cursor:crosshair;touch-action:none;}
 
   /* video modal */
   .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:60;}
@@ -254,6 +254,59 @@
   .modal-box .yt-wrap{position:relative;width:100%;padding-top:56.25%;border-radius:8px;overflow:hidden;background:#000;}
   .modal-box .yt-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
   .modal-close{display:block;margin:10px auto 0;background:var(--chalk-yellow);color:#1f3d2b;border:none;border-radius:8px;padding:8px 18px;font-weight:700;cursor:pointer;}
+
+  /* ---------- responsive: tablet ---------- */
+  @media (max-width:900px){
+    .cockpit-header{padding:10px 14px;}
+    .cockpit-header h1{font-size:1.1rem;}
+    .cockpit-header h1 span{font-size:0.76rem;}
+    .asset-btn{padding:6px 10px;font-size:0.78rem;}
+    .mode-btn{padding:6px 12px;font-size:0.82rem;}
+    .scroll-hint{display:none;}
+
+    /* side nav becomes a horizontal scroll strip above the content, not a fixed column */
+    .side-nav{
+      position:static;flex-direction:row;width:100%;
+      overflow-x:auto;-webkit-overflow-scrolling:touch;
+      gap:8px;padding:12px 16px;margin:0;
+    }
+    .side-nav button{width:40px;height:40px;flex:none;font-size:0.85rem;}
+    .side-nav-label{display:none;}
+
+    .cockpit-main{padding:16px 16px 96px;}
+    .point-section{scroll-margin-top:14px;}
+    .panel-card{padding:14px;}
+
+    /* tool panel becomes a fixed bottom bar instead of a fixed right column */
+    .tool-panel{
+      position:fixed;left:0;right:0;bottom:0;top:auto;transform:none;
+      flex-direction:row;justify-content:center;gap:10px;
+      background:linear-gradient(0deg, rgba(15,30,20,0.98), rgba(31,61,43,0.92));
+      border-top:2px solid var(--wood1);
+      padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+      z-index:50;
+    }
+    .tool-toggle{flex:1;max-width:130px;width:auto;border-radius:10px;padding:8px 4px;font-size:1.2rem;}
+
+    /* floating panels open upward from the bottom bar instead of from the side */
+    .floating-panel{
+      left:12px;right:12px;bottom:74px;top:auto;transform:none;
+      width:auto;max-height:55vh;
+    }
+  }
+
+  /* ---------- responsive: phone ---------- */
+  @media (max-width:520px){
+    .cockpit-header h1{font-size:0.98rem;}
+    .header-actions{gap:6px;}
+    .point-section h2{font-size:1.32rem;}
+    .point-section > p.desc{font-size:0.88rem;}
+    .carousel-viewport{max-height:44vh;}
+    .carousel-card.expanded .carousel-viewport{height:68vh;max-height:68vh;}
+    .tool-toggle span{display:none;}
+    .picker-range{flex-wrap:wrap;}
+    .iv-bar-wrap{gap:8px;}
+  }
 </style>
 </head>
 <body class="teacher-mode">
