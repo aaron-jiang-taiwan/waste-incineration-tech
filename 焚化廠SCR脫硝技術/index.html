@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCR 脫硝技術｜教學駕駛艙</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     設計系統：黑板粉筆風格。這一整段 CSS 是固定的視覺規格，
+     不需要每個主題重寫，只有 POINTS 資料和頁首文字需要改。
+     細節說明見 references/design-notes.md
+     ============================================================ */
+  :root{
+    --board:#1f3d2b;
+    --board2:#16291c;
+    --wood1:#8a5a34;
+    --wood2:#6b4423;
+    --chalk-white:#f5f3e7;
+    --chalk-yellow:#ffe66d;
+    --chalk-pink:#ff6b9d;
+    --chalk-blue:#7ec8ff;
+    --chalk-green:#8de08d;
+    --chalk-red:#ff7b7b;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.03), transparent 40%),
+      radial-gradient(ellipse at bottom right, rgba(255,255,255,0.03), transparent 40%),
+      var(--board);
+    color:var(--chalk-white);
+    font-family:'Noto Sans TC',sans-serif;
+    min-height:100vh;
+    padding-bottom:80px;
+  }
+  h1,h2,h3,.chalk-font{font-family:'Zhi Mang Xing','Noto Sans TC',sans-serif;}
+  ::selection{background:var(--chalk-yellow);color:#222;}
+
+  /* ---------- header ---------- */
+  .cockpit-header{
+    position:sticky;top:0;z-index:50;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 26px;
+    border-bottom:4px solid var(--wood1);
+    background:linear-gradient(180deg, rgba(15,30,20,0.97), rgba(31,61,43,0.97));
+    flex-wrap:wrap;gap:12px;
+  }
+  .cockpit-header h1{
+    font-size:1.5rem;margin:0;color:var(--chalk-white);
+    text-shadow:0 0 6px rgba(255,255,255,0.25);
+  }
+  .cockpit-header h1 span{display:block;font-size:0.9rem;color:var(--chalk-yellow);font-family:'Noto Sans TC',sans-serif;margin-top:2px;}
+  .header-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .mode-switch{display:flex;border:2px solid var(--chalk-white);border-radius:999px;overflow:hidden;}
+  .mode-btn{
+    background:transparent;border:none;color:var(--chalk-white);
+    padding:8px 16px;font-size:0.95rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-weight:700;
+    transition:.2s;
+  }
+  .mode-btn.active{background:var(--chalk-yellow);color:#1f3d2b;}
+  .asset-btn{
+    background:transparent;border:2px dashed rgba(245,243,231,0.6);color:var(--chalk-white);
+    border-radius:10px;padding:8px 14px;cursor:pointer;font-size:0.9rem;font-family:'Noto Sans TC',sans-serif;
+  }
+  .asset-btn:hover{border-color:var(--chalk-yellow);color:var(--chalk-yellow);}
+
+  /* ---------- scroll hint ---------- */
+  .scroll-hint{
+    text-align:center;color:rgba(245,243,231,0.55);font-size:0.82rem;padding:10px 0 0;
+  }
+
+  /* ---------- side nav (vertical scroll-spy) ---------- */
+  .side-nav{
+    position:fixed;left:14px;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:10px;z-index:40;
+  }
+  .side-nav button{
+    width:46px;height:46px;border-radius:50%;
+    border:2px solid rgba(245,243,231,0.4);background:rgba(22,41,28,0.92);
+    color:var(--chalk-white);cursor:pointer;font-weight:700;font-size:0.95rem;
+    box-shadow:2px 3px 8px rgba(0,0,0,0.35);
+    font-family:'Noto Sans TC',sans-serif;
+    transition:.2s;
+  }
+  .side-nav button:hover{border-color:var(--chalk-yellow);}
+  .side-nav button.active{
+    border-color:var(--chalk-yellow);color:#1f3d2b;background:var(--chalk-yellow);
+    box-shadow:0 0 10px rgba(255,230,109,0.5);
+  }
+  .side-nav-label{
+    position:absolute;left:58px;top:50%;transform:translateY(-50%);
+    white-space:nowrap;background:var(--board2);border:1px solid var(--wood1);border-radius:6px;
+    padding:4px 10px;font-size:0.78rem;opacity:0;pointer-events:none;transition:.15s;
+  }
+  .side-nav button:hover .side-nav-label{opacity:1;}
+
+  /* ---------- main / vertical sections ---------- */
+  .cockpit-main{padding:18px 110px 18px 90px;max-width:1500px;margin:0 auto;}
+  @media (max-width:1100px){ .cockpit-main{padding:18px 90px 18px 70px;} }
+
+  .point-section{scroll-margin-top:96px;padding-bottom:34px;margin-bottom:34px;border-bottom:2px dashed rgba(245,243,231,0.22);}
+  .point-section:last-child{border-bottom:none;}
+  .point-section h2{font-size:1.7rem;color:var(--chalk-yellow);margin:6px 0 4px;text-shadow:0 0 6px rgba(255,230,109,0.3);}
+  .point-section > p.desc{color:rgba(245,243,231,0.85);margin:0 0 16px;line-height:1.7;font-size:0.96rem;max-width:900px;}
+
+  .panel-grid{ display:flex; flex-direction:column; gap:18px; }
+  .lower-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:18px; align-items:stretch; }
+  @media (max-width:1100px){ .lower-grid{grid-template-columns:1fr;} }
+
+  .panel-card{
+    background:rgba(0,0,0,0.18);
+    border:2px dashed rgba(245,243,231,0.4);
+    border-radius:14px;
+    padding:16px;
+    display:flex;flex-direction:column;
+    min-height:340px;
+  }
+  .panel-card h3{margin:0 0 10px;font-size:1.2rem;color:var(--chalk-white);border-bottom:1px dashed rgba(245,243,231,0.3);padding-bottom:8px;}
+  .carousel-card{min-height:auto;}
+  .carousel-card h3{display:flex;justify-content:space-between;align-items:center;}
+  .carousel-expand-btn{background:rgba(245,243,231,0.1);border:1px solid rgba(245,243,231,0.4);color:var(--chalk-white);
+    border-radius:8px;padding:4px 10px;cursor:pointer;font-size:0.78rem;font-family:'Noto Sans TC',sans-serif;}
+  .carousel-expand-btn:hover{border-color:var(--chalk-yellow);color:var(--chalk-yellow);}
+
+  /* ---------- carousel ---------- */
+  .carousel{position:relative;flex:1;display:flex;flex-direction:column;}
+  .carousel-viewport{position:relative;width:100%;aspect-ratio:16/9;max-height:78vh;border-radius:10px;overflow:hidden;background:#0d1f14;border:1px solid rgba(245,243,231,0.2);}
+  .carousel-viewport img{width:100%;height:100%;object-fit:contain;display:block;background:#0d1f14;}
+  .carousel-card.expanded .carousel-viewport{aspect-ratio:auto;height:88vh;max-height:88vh;}
+  .carousel-controls{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+  .carousel-btn{background:rgba(245,243,231,0.1);border:1px solid rgba(245,243,231,0.4);color:var(--chalk-white);
+    border-radius:8px;padding:6px 12px;cursor:pointer;font-size:1rem;}
+  .carousel-btn:hover{background:rgba(255,230,109,0.2);}
+  .carousel-dots{display:flex;gap:6px;}
+  .carousel-dot{width:8px;height:8px;border-radius:50%;background:rgba(245,243,231,0.3);cursor:pointer;}
+  .carousel-dot.active{background:var(--chalk-yellow);}
+  .carousel-caption{font-size:0.8rem;color:rgba(245,243,231,0.6);margin-top:6px;text-align:center;}
+
+  /* ---------- interactive area (通用元件，主題邏輯自己在 render() 裡寫) ---------- */
+  .interactive-area{flex:1;display:flex;flex-direction:column;gap:12px;font-size:0.92rem;line-height:1.6;}
+  .iv-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .iv-btn{
+    background:rgba(245,243,231,0.08);border:1.5px solid rgba(245,243,231,0.5);color:var(--chalk-white);
+    border-radius:8px;padding:7px 12px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:0.85rem;
+    transition:.15s;
+  }
+  .iv-btn:hover{border-color:var(--chalk-yellow);}
+  .iv-btn.active{background:var(--chalk-yellow);color:#1f3d2b;border-color:var(--chalk-yellow);font-weight:700;}
+  .iv-panel{background:rgba(0,0,0,0.2);border:1px dashed rgba(245,243,231,0.35);border-radius:10px;padding:12px;flex:1;}
+  .iv-bar-wrap{display:flex;align-items:flex-end;gap:16px;height:140px;margin:14px 0 6px;padding:0 8px;}
+  .iv-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
+  .iv-bar-fill{width:100%;max-width:46px;background:linear-gradient(180deg,var(--chalk-yellow),#c9a634);border-radius:6px 6px 0 0;transition:height .5s ease;box-shadow:0 0 8px rgba(255,230,109,0.3);}
+  .iv-bar-label{margin-top:6px;font-size:0.78rem;text-align:center;color:rgba(245,243,231,0.85);}
+  .iv-bar-value{font-size:0.85rem;font-weight:700;color:var(--chalk-yellow);margin-bottom:4px;}
+  input[type=range]{width:100%;accent-color:var(--chalk-yellow);}
+  .iv-temp-track{position:relative;height:34px;border-radius:8px;background:linear-gradient(90deg,#3a6ff0,#8de08d 25%,var(--chalk-yellow) 45%,#ff9f43 60%,var(--chalk-red) 100%);margin:12px 0 4px;}
+  .iv-temp-marker{position:absolute;top:-8px;width:4px;height:50px;background:var(--chalk-white);box-shadow:0 0 6px #fff;transition:left .25s;}
+  .iv-danger-zone{position:absolute;top:0;bottom:0;background:rgba(255,255,255,0.18);border-left:1px dashed #fff;border-right:1px dashed #fff;}
+  .iv-msg{margin-top:10px;padding:10px;border-radius:8px;font-weight:700;text-align:center;font-size:0.95rem;transition:.3s;}
+  .iv-msg.danger{background:rgba(255,123,123,0.18);color:var(--chalk-red);border:1px dashed var(--chalk-red);}
+  .iv-msg.safe{background:rgba(141,224,141,0.15);color:var(--chalk-green);border:1px dashed var(--chalk-green);}
+  .iv-check{display:flex;align-items:center;gap:6px;font-size:0.85rem;cursor:pointer;user-select:none;}
+  .iv-dots-move{position:relative;height:90px;background:rgba(0,0,0,0.15);border-radius:8px;overflow:hidden;margin:8px 0;}
+  .iv-dot{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--chalk-pink);top:40px;left:10px;transition:left 1.4s ease, top 1.4s ease, opacity .4s;box-shadow:0 0 6px var(--chalk-pink);}
+  .iv-zone-diagram{display:flex;gap:8px;margin-top:6px;}
+  .iv-zone{flex:1;border:1.5px solid rgba(245,243,231,0.4);border-radius:8px;padding:10px 6px;text-align:center;cursor:pointer;font-size:0.78rem;transition:.15s;}
+  .iv-zone:hover, .iv-zone.active{border-color:var(--chalk-yellow);background:rgba(255,230,109,0.1);}
+  .iv-zone .iv-zone-temp{font-weight:700;color:var(--chalk-yellow);display:block;margin:4px 0;}
+  .iv-detail{margin-top:10px;font-size:0.85rem;background:rgba(0,0,0,0.15);border-radius:8px;padding:10px;min-height:60px;}
+
+  /* ---------- quiz ---------- */
+  .quiz-area{flex:1;display:flex;flex-direction:column;gap:10px;}
+  .quiz-q{font-size:0.95rem;font-weight:700;color:var(--chalk-white);}
+  .quiz-opt{
+    display:block;width:100%;text-align:left;background:rgba(245,243,231,0.06);
+    border:1.5px solid rgba(245,243,231,0.4);color:var(--chalk-white);border-radius:8px;
+    padding:9px 12px;margin-bottom:7px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:0.87rem;
+  }
+  .quiz-opt:hover{border-color:var(--chalk-yellow);}
+  .quiz-opt.correct{background:rgba(141,224,141,0.25);border-color:var(--chalk-green);}
+  .quiz-opt.wrong{background:rgba(255,123,123,0.25);border-color:var(--chalk-red);}
+  .quiz-opt[disabled]{cursor:default;}
+  .quiz-feedback{font-size:0.85rem;padding:8px;border-radius:8px;background:rgba(0,0,0,0.2);display:none;}
+  .quiz-feedback.show{display:block;}
+  .teacher-only{display:none;}
+  body.teacher-mode .teacher-only{display:block;}
+  body.teacher-mode .quiz-opt.answer-key{outline:2px solid var(--chalk-yellow);}
+  .teacher-badge{display:none;background:var(--chalk-yellow);color:#1f3d2b;font-size:0.7rem;padding:2px 8px;border-radius:999px;font-weight:700;margin-left:6px;}
+  body.teacher-mode .teacher-badge{display:inline-block;}
+
+  .teacher-note{
+    margin-top:16px;padding:14px 16px;border:2px dashed var(--chalk-yellow);border-radius:12px;
+    background:rgba(255,230,109,0.06);font-size:0.88rem;line-height:1.7;color:var(--chalk-yellow);
+  }
+
+  /* ---------- floating tool panel ---------- */
+  .tool-panel{
+    position:fixed;right:18px;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:12px;z-index:40;
+  }
+  .tool-toggle{
+    width:64px;background:rgba(31,61,43,0.9);border:2px solid var(--wood1);border-radius:14px;
+    color:var(--chalk-white);padding:10px 4px;cursor:pointer;font-size:1.4rem;
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+    box-shadow:2px 3px 8px rgba(0,0,0,0.35);
+  }
+  .tool-toggle span{font-size:0.65rem;font-family:'Noto Sans TC',sans-serif;}
+  .tool-toggle:hover, .tool-toggle.on{border-color:var(--chalk-yellow);color:var(--chalk-yellow);}
+
+  .floating-panel{
+    position:fixed;right:96px;top:50%;transform:translateY(-50%);
+    width:300px;max-height:80vh;overflow:auto;
+    background:var(--board2);border:2px solid var(--wood1);border-radius:14px;
+    padding:16px;z-index:41;box-shadow:4px 6px 18px rgba(0,0,0,0.45);
+    display:none;
+  }
+  .floating-panel.open{display:block;}
+  .floating-panel h4{margin:0 0 10px;color:var(--chalk-yellow);display:flex;justify-content:space-between;align-items:center;}
+  .fp-close{background:none;border:none;color:var(--chalk-white);font-size:1.1rem;cursor:pointer;}
+  .picker-range{display:flex;gap:14px;margin-bottom:4px;}
+  .picker-range label{display:flex;align-items:center;gap:6px;font-size:0.85rem;color:rgba(245,243,231,0.85);}
+  .picker-range input{width:64px;background:rgba(0,0,0,0.25);color:var(--chalk-white);border:1px dashed rgba(245,243,231,0.4);border-radius:8px;padding:6px 8px;font-family:'Noto Sans TC',sans-serif;font-size:0.95rem;}
+  .picker-result{margin-top:12px;text-align:center;font-size:2.2rem;font-family:'Zhi Mang Xing',sans-serif;color:var(--chalk-yellow);min-height:44px;}
+  .full-btn{width:100%;margin-top:8px;background:var(--chalk-yellow);color:#1f3d2b;border:none;border-radius:8px;padding:9px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;}
+  .full-btn.secondary{background:transparent;color:var(--chalk-white);border:1.5px solid rgba(245,243,231,0.5);}
+
+  .timer-display{font-size:2.6rem;text-align:center;font-family:'Noto Sans TC',sans-serif;font-weight:700;margin:10px 0;color:var(--chalk-white);}
+  .timer-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  .timer-presets button{flex:1;min-width:50px;background:rgba(245,243,231,0.08);border:1px solid rgba(245,243,231,0.4);color:var(--chalk-white);border-radius:8px;padding:6px;cursor:pointer;font-size:0.8rem;}
+  .timer-actions{display:flex;gap:8px;margin-top:8px;}
+
+  .pen-colors{display:flex;gap:8px;margin:10px 0;}
+  .pen-color{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,0.5);}
+  .pen-color.active{border-color:var(--chalk-yellow);transform:scale(1.15);}
+
+  #drawCanvas{position:fixed;inset:0;z-index:35;pointer-events:none;}
+  #drawCanvas.active{pointer-events:auto;cursor:crosshair;touch-action:none;}
+
+  /* video modal */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:60;}
+  .modal-backdrop.open{display:flex;}
+  .modal-box{background:var(--board2);border:3px solid var(--wood1);border-radius:14px;padding:14px;max-width:92vw;width:900px;}
+  .modal-box .yt-wrap{position:relative;width:100%;padding-top:56.25%;border-radius:8px;overflow:hidden;background:#000;}
+  .modal-box .yt-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .modal-close{display:block;margin:10px auto 0;background:var(--chalk-yellow);color:#1f3d2b;border:none;border-radius:8px;padding:8px 18px;font-weight:700;cursor:pointer;}
+
+  /* ---------- responsive: tablet ---------- */
+  @media (max-width:900px){
+    .cockpit-header{padding:10px 14px;}
+    .cockpit-header h1{font-size:1.1rem;}
+    .cockpit-header h1 span{font-size:0.76rem;}
+    .asset-btn{padding:6px 10px;font-size:0.78rem;}
+    .mode-btn{padding:6px 12px;font-size:0.82rem;}
+    .scroll-hint{display:none;}
+
+    /* side nav becomes a horizontal scroll strip above the content, not a fixed column.
+       position:static (not sticky) on purpose — see references/design-notes.md */
+    .side-nav{
+      position:static;flex-direction:row;width:100%;
+      overflow-x:auto;-webkit-overflow-scrolling:touch;
+      gap:8px;padding:12px 16px;margin:0;
+    }
+    .side-nav button{width:40px;height:40px;flex:none;font-size:0.85rem;}
+    .side-nav-label{display:none;}
+
+    .cockpit-main{padding:16px 16px 96px;}
+    .point-section{scroll-margin-top:14px;}
+    .panel-card{padding:14px;}
+
+    /* tool panel becomes a fixed bottom bar instead of a fixed right column */
+    .tool-panel{
+      position:fixed;left:0;right:0;bottom:0;top:auto;transform:none;
+      flex-direction:row;justify-content:center;gap:10px;
+      background:linear-gradient(0deg, rgba(15,30,20,0.98), rgba(31,61,43,0.92));
+      border-top:2px solid var(--wood1);
+      padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+      z-index:50;
+    }
+    .tool-toggle{flex:1;max-width:130px;width:auto;border-radius:10px;padding:8px 4px;font-size:1.2rem;}
+
+    .floating-panel{
+      left:12px;right:12px;bottom:74px;top:auto;transform:none;
+      width:auto;max-height:55vh;
+    }
+  }
+
+  /* ---------- responsive: phone ---------- */
+  @media (max-width:520px){
+    .cockpit-header h1{font-size:0.98rem;}
+    .header-actions{gap:6px;}
+    .point-section h2{font-size:1.32rem;}
+    .point-section > p.desc{font-size:0.88rem;}
+    .carousel-viewport{max-height:44vh;}
+    .carousel-card.expanded .carousel-viewport{height:68vh;max-height:68vh;}
+    .tool-toggle span{display:none;}
+    .picker-range{flex-wrap:wrap;}
+    .iv-bar-wrap{gap:8px;}
+  }
+
+  /* ---------- 本主題新增元件 ---------- */
+  .iv-zone-diagram{flex-wrap:wrap;}
+  .iv-zone{min-width:96px;}
+  .iv-zone b{display:block;font-size:0.82rem;}
+  .iv-table{width:100%;border-collapse:collapse;font-size:0.85rem;text-align:center;}
+  .iv-table th,.iv-table td{border:1px dashed rgba(245,243,231,0.35);padding:5px 8px;}
+  .iv-table th{color:var(--chalk-yellow);}
+  .pore-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin:6px 0;}
+  .pore{aspect-ratio:1;border-radius:50%;border:2px solid rgba(245,243,231,0.55);background:rgba(0,0,0,0.3);transition:.3s;}
+  .pore.blocked{background:var(--chalk-yellow);border-color:#c9a634;box-shadow:0 0 6px rgba(255,230,109,0.5);}
+  .quiz-block{padding-bottom:10px;margin-bottom:10px;border-bottom:1px dashed rgba(245,243,231,0.25);}
+  .quiz-block:last-child{border-bottom:none;}
+  @media (max-width:900px){ .side-nav{padding-top:22px;} }
+  .page-footer{max-width:1100px;margin:10px auto 0;padding:0 24px;text-align:center;font-size:0.78rem;line-height:1.8;color:rgba(245,243,231,0.6);}
+  @media (max-width:900px){ .page-footer{padding:0 16px 20px;} }
+</style>
+</head>
+<body class="teacher-mode">
+
+<header class="cockpit-header">
+  <h1>🎓 SCR 選擇性觸媒還原脫硝技術<span>焚化廠應用 · 教學駕駛艙 · 黑板粉筆版</span></h1>
+  <div class="header-actions">
+    <button class="asset-btn" id="openVideoBtn">🎬 播放教學影片總覽</button>
+    <button class="asset-btn" id="openPdfBtn">📄 開啟完整簡報 PDF</button>
+    <div class="mode-switch">
+      <button class="mode-btn active" id="teacherBtn">👩‍🏫 教師模式</button>
+      <button class="mode-btn" id="studentBtn">🧑‍🎓 學生模式</button>
+    </div>
+  </div>
+</header>
+<div class="scroll-hint">↓ 由上往下捲動瀏覽教學重點，或點左側圓鈕快速跳轉 ↓</div>
+
+<nav class="side-nav" id="sideNav"></nav>
+
+<main class="cockpit-main" id="cockpitMain"></main>
+<footer class="page-footer">
+  教材內容整理自業界公司提供之技術簡報，素材由 NotebookLM 生成並經人工逐頁核對。<br>
+  圖中溫度為某旋轉窯焚化線的設計值，各廠不同；標示「待文獻確認」的內容，尚待學術文獻核對，請勿當作定論引用。
+</footer>
+
+<aside class="tool-panel">
+  <button class="tool-toggle" data-tool="draw">🎯<span>抽籤</span></button>
+  <button class="tool-toggle" data-tool="timer">⏱️<span>計時器</span></button>
+  <button class="tool-toggle" data-tool="pen">✏️<span>畫筆</span></button>
+</aside>
+
+<div class="floating-panel" id="drawPanel">
+  <h4>🎯 隨機抽籤 <button class="fp-close" data-close="drawPanel">✕</button></h4>
+  <p style="font-size:0.8rem;color:rgba(245,243,231,0.7);margin:0 0 8px;">輸入座號範圍（可自由填寫）：</p>
+  <div class="picker-range">
+    <label>從 <input type="number" id="pickerMin" value="1"></label>
+    <label>到 <input type="number" id="pickerMax" value="30"></label>
+  </div>
+  <button class="full-btn" id="drawGoBtn">🎲 開始抽籤</button>
+  <div class="picker-result" id="pickerResult">—</div>
+</div>
+
+<div class="floating-panel" id="timerPanel">
+  <h4>⏱️ 計時器 <button class="fp-close" data-close="timerPanel">✕</button></h4>
+  <div class="timer-display" id="timerDisplay">05:00</div>
+  <div class="timer-presets">
+    <button data-sec="60">1分</button>
+    <button data-sec="180">3分</button>
+    <button data-sec="300">5分</button>
+    <button data-sec="600">10分</button>
+  </div>
+  <div class="timer-actions">
+    <button class="full-btn" id="timerStart">開始</button>
+    <button class="full-btn secondary" id="timerReset">重設</button>
+  </div>
+</div>
+
+<div class="floating-panel" id="penPanel">
+  <h4>✏️ 黑板畫筆 <button class="fp-close" data-close="penPanel">✕</button></h4>
+  <p style="font-size:0.8rem;color:rgba(245,243,231,0.7);margin:0 0 6px;">開啟後可直接在畫面上手繪標註</p>
+  <button class="full-btn" id="penToggleBtn">🖊️ 開啟畫筆模式</button>
+  <div class="pen-colors">
+    <div class="pen-color active" style="background:#f5f3e7" data-color="#f5f3e7"></div>
+    <div class="pen-color" style="background:#ffe66d" data-color="#ffe66d"></div>
+    <div class="pen-color" style="background:#ff6b9d" data-color="#ff6b9d"></div>
+    <div class="pen-color" style="background:#7ec8ff" data-color="#7ec8ff"></div>
+  </div>
+  <button class="full-btn secondary" id="penClearBtn">🧹 清除畫面</button>
+</div>
+
+<canvas id="drawCanvas"></canvas>
+
+<div class="modal-backdrop" id="videoModal">
+  <div class="modal-box">
+    <div class="yt-wrap">
+      <iframe id="ytFrame" src="" title="教學影片總覽" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+    <button class="modal-close" data-close-modal="videoModal">關閉</button>
+  </div>
+</div>
+
+<script>
+// 教學影片的 YouTube 影片 ID（Aaron 上傳後填入；尚未填入時，影片按鈕會自動隱藏）
+const YOUTUBE_ID = "REPLACE_WITH_YOUTUBE_ID";
+
+/* ---------- 共用小工具：可點選區域圖 ---------- */
+function zonesWidget(container, items, hint){
+  container.innerHTML = `
+    ${hint?`<div style="font-size:0.85rem;color:rgba(245,243,231,0.85);">${hint}</div>`:''}
+    <div class="iv-zone-diagram" data-role="zones"></div>
+    <div class="iv-detail" data-role="detail">點上方任一項目，看詳細說明。</div>`;
+  const zWrap = container.querySelector('[data-role=zones]');
+  const detail = container.querySelector('[data-role=detail]');
+  items.forEach((it,i)=>{
+    const z = document.createElement('div');
+    z.className = 'iv-zone';
+    z.innerHTML = `<b>${it.label}</b>${it.sub?`<span class="iv-zone-temp">${it.sub}</span>`:''}`;
+    z.addEventListener('click',()=>{
+      zWrap.querySelectorAll('.iv-zone').forEach(x=>x.classList.remove('active'));
+      z.classList.add('active');
+      detail.innerHTML = it.detail;
+    });
+    zWrap.appendChild(z);
+  });
+}
+
+const POINTS = [
+  /* ================= 重點 1 ================= */
+  {
+    id:1,
+    title:"重點1・為什麼要脫硝？SNCR 與 SCR 怎麼選",
+    desc:"焚化爐燃燒時會產生氮氧化物（NOx，主要是 NO 和 NO₂），一來是廢棄物和燃料裡本來就有含氮化合物，二來是高溫下空氣中的氮和氧會結合。NOx 會促成酸雨與臭氧生成，是排放標準裡管制最嚴的項目之一。常見的脫硝方式有兩種：SNCR 在高溫區直接噴氨水或尿素、不用觸媒；SCR 靠觸媒（幫助反應加速的物質）在較低溫度下反應，去除率更高。",
+    slides:["簡報單張圖片/簡報頁面-02.jpg","資訊圖表/圖表1.jpg"],
+    slideCaptions:["簡報：NOx 的來源，以及 SNCR 與 SCR 的比較","本重點資訊圖表：兩種脫硝方式比較"],
+    teacherNote:"教學提示：先問學生「煙囪排出去的氣體，氮氧化物是從哪裡來的？」讓他們自己想到燃料和高溫兩個來源。再帶出：不用觸媒要靠高溫，用了觸媒就能在較低溫工作，這是 SCR 的核心價值。注意：SNCR 去除率「有限」目前標示待文獻確認，不要在課堂上講出具體百分比。",
+    quizzes:[
+      { q:"焚化爐排放的氮氧化物（NOx），主要是指哪兩種氣體？",
+        opts:["NO 和 NO₂","SO₂ 和 SO₃","CO 和 CO₂"], answer:0,
+        feedback:["答對了！NOx 主要就是 NO（一氧化氮）和 NO₂（二氧化氮）。","SO₂、SO₃ 是硫氧化物，不是氮氧化物。","CO、CO₂ 是碳的氧化物，不是氮氧化物。"] },
+      { q:"SNCR 和 SCR 最主要的差別是什麼？",
+        opts:["SNCR 需要觸媒、SCR 不需要","SNCR 不用觸媒、在高溫區噴藥；SCR 需要觸媒、可在較低溫度運作","兩者都不用還原劑，只差在設備大小"], answer:1,
+        feedback:["剛好相反：SNCR 不用觸媒，SCR 才需要。","答對了！有沒有觸媒，決定了它們可以工作的溫度。","兩者都要噴還原劑（氨水或尿素），差別在有沒有觸媒與工作溫度。"] }
+    ],
+    render(container){
+      container.innerHTML = `
+        <div class="iv-row">
+          <button class="iv-btn active" data-m="sncr">SNCR 選擇性非觸媒還原</button>
+          <button class="iv-btn" data-m="scr">SCR 選擇性觸媒還原</button>
+        </div>
+        <div class="iv-panel">
+          <div style="font-size:0.8rem;color:rgba(245,243,231,0.7);">工作溫度（示意，0–1200°C）</div>
+          <div class="iv-temp-track" data-role="track"></div>
+          <div class="iv-detail" data-role="detail" style="margin-top:12px;"></div>
+        </div>`;
+      const track = container.querySelector('[data-role=track]');
+      const detail = container.querySelector('[data-role=detail]');
+      const data = {
+        sncr:{ zone:[850/1200*100,(1050-850)/1200*100],
+          html:`<b>SNCR（選擇性非觸媒還原）</b><br>• 溫度：高溫區約 <b>850–1050°C</b><br>• 觸媒：<b>不用</b><br>• 做法：在高溫區直接噴氨水或尿素<br>• 特色：設備簡單，但去除率有限 <span style="color:var(--chalk-yellow)">［待文獻確認］</span>` },
+        scr:{ zone:null,
+          html:`<b>SCR（選擇性觸媒還原）</b><br>• 溫度：<b>較低溫度</b>（具體溫度窗口 <span style="color:var(--chalk-yellow)">［待文獻確認］</span>）<br>• 觸媒：<b>需要</b>，藉由觸媒讓氨與 NOx 反應<br>• 特色：去除率更高，是這份教材的主角` }
+      };
+      function show(k){
+        track.innerHTML = '';
+        if(data[k].zone){
+          const z = document.createElement('div');
+          z.className='iv-danger-zone';
+          z.style.left = data[k].zone[0]+'%';
+          z.style.width = data[k].zone[1]+'%';
+          track.appendChild(z);
+          const lab=document.createElement('div');
+          lab.style.cssText='position:absolute;top:6px;left:'+data[k].zone[0]+'%;width:'+data[k].zone[1]+'%;text-align:center;font-size:0.72rem;color:#111;font-weight:700;';
+          lab.textContent='850–1050°C';
+          track.appendChild(lab);
+        } else {
+          const lab=document.createElement('div');
+          lab.style.cssText='position:absolute;top:8px;left:0;right:0;text-align:center;font-size:0.78rem;color:#111;font-weight:700;';
+          lab.textContent='較低溫度（窗口待文獻確認，此處不標數字）';
+          track.appendChild(lab);
+        }
+        detail.innerHTML = data[k].html;
+      }
+      container.querySelectorAll('.iv-btn').forEach(b=>{
+        b.addEventListener('click',()=>{
+          container.querySelectorAll('.iv-btn').forEach(x=>x.classList.remove('active'));
+          b.classList.add('active'); show(b.dataset.m);
+        });
+      });
+      show('sncr');
+    }
+  },
+
+  /* ================= 重點 2 ================= */
+  {
+    id:2,
+    title:"重點2・SCR 的核心反應與「選擇性」",
+    desc:"SCR 的原理是：借助觸媒，讓還原劑把 NO 等污染物還原成無害的氮氣（N₂）和水（H₂O）。實務上多用 25% 氨水當還原劑，因為比純氨（液氨）處理安全。「選擇性」的意思是：氨會優先跟 NOx 反應，而不是被廢氣裡過量的氧氣燒掉。主反應有三條，廢氣中 NOx 以 NO 為主，所以標準 SCR 反應最重要。",
+    slides:["簡報單張圖片/簡報頁面-03.jpg"],
+    slideCaptions:["簡報：還原劑、「選擇性」的定義與三條主反應式"],
+    teacherNote:"教學提示：請學生實際數一數反應式左右兩邊的 N、H、O 各幾個，確認原子守恆（右邊互動區會自動幫忙算）。再問：「如果氨被氧氣燒掉了，會發生什麼事？」帶出為什麼要強調「選擇性」。",
+    quizzes:[
+      { q:"實務上 SCR 常用的還原劑是什麼？為什麼？",
+        opts:["純氧，因為最便宜","25% 氨水，因為比純氨（液氨）處理安全","氫氧化鈉，因為可以吸收酸氣"], answer:1,
+        feedback:["氧氣不是還原劑，反而是反應中的氧化劑之一。","答對了！氨水濃度 25%，比純氨好處理。","氫氧化鈉是洗滌塔中和酸氣用的，不是 SCR 的還原劑。"] },
+      { q:"SCR 所說的「選擇性」是什麼意思？",
+        opts:["氨優先跟 NOx 反應，而不是被過量的氧氣燒掉","可以任意挑選要不要加觸媒","只處理 NO₂，不處理 NO"], answer:0,
+        feedback:["答對了！這就是「選擇性」：氨專挑 NOx 反應。","選擇性講的是氨跟誰反應，不是設備選配。","正好相反：廢氣中 NOx 以 NO 為主，標準 SCR 反應就是處理 NO。"] }
+    ],
+    render(container){
+      container.innerHTML = `
+        <div style="font-size:0.85rem;color:rgba(245,243,231,0.85);">點選反應式，看說明並檢查原子是否守恆：</div>
+        <div class="iv-row" data-role="btns"></div>
+        <div class="iv-panel" data-role="panel"></div>`;
+      const rx = [
+        { name:"標準 SCR", eq:"4NO + 4NH₃ + O₂ → 4N₂ + 6H₂O",
+          note:"最重要的一條：廢氣中的 NOx 以 NO 為主。",
+          L:{N:4+4,H:12,O:4+2}, R:{N:8,H:12,O:6} },
+        { name:"NO₂ 反應", eq:"2NO₂ + 4NH₃ + O₂ → 3N₂ + 6H₂O",
+          note:"處理廢氣中的 NO₂。",
+          L:{N:2+4,H:12,O:4+2}, R:{N:6,H:12,O:6} },
+        { name:"快速 SCR", eq:"NO + NO₂ + 2NH₃ → 2N₂ + 3H₂O",
+          note:"NO 與 NO₂ 比例約 1:1 時進行。",
+          L:{N:1+1+2,H:6,O:1+2}, R:{N:4,H:6,O:3} }
+      ];
+      const btns = container.querySelector('[data-role=btns]');
+      const panel = container.querySelector('[data-role=panel]');
+      function show(i){
+        const r = rx[i];
+        const rows = ['N','H','O'].map(a=>`<tr><td>${a}</td><td>${r.L[a]}</td><td>${r.R[a]}</td><td style="color:${r.L[a]===r.R[a]?'var(--chalk-green)':'var(--chalk-red)'}">${r.L[a]===r.R[a]?'✔ 相等':'✘'}</td></tr>`).join('');
+        panel.innerHTML = `
+          <div style="font-size:1.05rem;font-weight:700;color:var(--chalk-yellow);margin-bottom:4px;">${r.eq}</div>
+          <div style="margin-bottom:8px;">${r.note}</div>
+          <table class="iv-table"><tr><th>原子</th><th>反應前</th><th>反應後</th><th>守恆？</th></tr>${rows}</table>`;
+      }
+      rx.forEach((r,i)=>{
+        const b = document.createElement('button');
+        b.className = 'iv-btn'+(i===0?' active':'');
+        b.textContent = r.name;
+        b.addEventListener('click',()=>{
+          btns.querySelectorAll('.iv-btn').forEach(x=>x.classList.remove('active'));
+          b.classList.add('active'); show(i);
+        });
+        btns.appendChild(b);
+      });
+      show(0);
+    }
+  },
+
+  /* ================= 重點 3 ================= */
+  {
+    id:3,
+    title:"重點3・要避免的副反應與觸媒組成",
+    desc:"觸媒除了幫忙脫硝，也會把廢氣裡的 SO₂ 氧化成 SO₃；SO₃ 再跟氨和水結合，生成硫酸銨與「硫酸氫銨」（ABS）。硫酸氫銨黏性很強，會附著並堵塞觸媒孔隙，讓觸媒失效，所以選購觸媒要求 SO₂ 轉成 SO₃ 的比例越低越好。觸媒本體以二氧化鈦（TiO₂）為載體，活性成分是釩、鉬、鎢的金屬氧化物。",
+    slides:["簡報單張圖片/簡報頁面-04.jpg"],
+    slideCaptions:["簡報：三條副反應，以及觸媒組成"],
+    teacherNote:"教學提示：先讓學生看觸媒孔隙示意（右邊互動區），再問「孔隙被堵住，氣體還走得過去嗎？」。名稱提醒：NH₄HSO₄ 的正確名稱是「硫酸氫銨」（ammonium bisulfate），不是「亞硫酸氫銨」，教科書或舊簡報若寫錯要更正。沉積溫度與各成分的作用，目前標示待文獻確認。",
+    quizzes:[
+      { q:"會黏附並堵塞觸媒孔隙、讓觸媒失效的物質是哪一個？",
+        opts:["氮氣（N₂）","硫酸氫銨（NH₄HSO₄）","二氧化鈦（TiO₂）"], answer:1,
+        feedback:["氮氣是 SCR 的無害產物，不會堵塞觸媒。","答對了！它黏性強，附著在觸媒孔隙上使觸媒失效。","二氧化鈦是觸媒的載體（本體），不是堵塞物。"] },
+      { q:"SCR 觸媒的組成，下列哪一項正確？",
+        opts:["載體是釩、鉬、鎢的氧化物","載體是二氧化鈦（TiO₂），活性成分是釩、鉬、鎢的金屬氧化物","載體是硫酸銨，活性成分是二氧化鈦"], answer:1,
+        feedback:["顛倒了：釩、鉬、鎢氧化物是活性成分。","答對了！TiO₂ 當載體，V、Mo、W 氧化物負責反應。","硫酸銨是副反應產物，不是觸媒的組成。"] }
+    ],
+    render(container){
+      container.innerHTML = `
+        <div style="font-size:0.85rem;color:rgba(245,243,231,0.85);">① 點選副反應步驟；② 切換看看觸媒孔隙的變化：</div>
+        <div class="iv-row" data-role="steps"></div>
+        <div class="iv-detail" data-role="detail"></div>
+        <div class="iv-row">
+          <button class="iv-btn active" data-p="clean">正常觸媒孔隙</button>
+          <button class="iv-btn" data-p="blocked">硫酸氫銨沉積後</button>
+        </div>
+        <div class="pore-grid" data-role="pores"></div>
+        <div class="iv-msg safe" data-role="pmsg"></div>`;
+      const steps = [
+        {n:"① SO₂ 被氧化", eq:"2SO₂ + O₂ → 2SO₃", t:"觸媒把廢氣裡的 SO₂ 氧化成 SO₃。轉化率越低越好，所以選觸媒要設上限。"},
+        {n:"② 生成硫酸銨", eq:"2NH₃ + SO₃ + H₂O → (NH₄)₂SO₄", t:"SO₃ 與氨、水結合，生成硫酸銨。"},
+        {n:"③ 生成硫酸氫銨", eq:"NH₃ + SO₃ + H₂O → NH₄HSO₄", t:"生成黏性很強的硫酸氫銨（ABS），會堵塞觸媒孔隙。沉積溫度與 SO₃、NH₃ 濃度的關係：<span style=\"color:var(--chalk-yellow)\">［待文獻確認］</span>"}
+      ];
+      const sWrap = container.querySelector('[data-role=steps]');
+      const det = container.querySelector('[data-role=detail]');
+      steps.forEach((s,i)=>{
+        const b=document.createElement('button'); b.className='iv-btn'+(i===0?' active':''); b.textContent=s.n;
+        b.addEventListener('click',()=>{
+          sWrap.querySelectorAll('.iv-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+          det.innerHTML = `<b style="color:var(--chalk-yellow)">${s.eq}</b><br>${s.t}`;
+        });
+        sWrap.appendChild(b);
+      });
+      det.innerHTML = `<b style="color:var(--chalk-yellow)">${steps[0].eq}</b><br>${steps[0].t}`;
+      const grid = container.querySelector('[data-role=pores]');
+      const pmsg = container.querySelector('[data-role=pmsg]');
+      const blockedIdx = new Set([2,5,9,11,14,17,19,22]);
+      function drawPores(blocked){
+        grid.innerHTML='';
+        for(let i=0;i<24;i++){
+          const d=document.createElement('div');
+          d.className='pore'+(blocked&&blockedIdx.has(i)?' blocked':'');
+          grid.appendChild(d);
+        }
+        if(blocked){ pmsg.className='iv-msg danger'; pmsg.textContent='黃色＝硫酸氫銨堵住的孔隙：氣體過不去，觸媒失效'; }
+        else { pmsg.className='iv-msg safe'; pmsg.textContent='孔隙暢通：氣體能順利通過，反應正常進行'; }
+      }
+      container.querySelectorAll('[data-p]').forEach(b=>{
+        b.addEventListener('click',()=>{
+          container.querySelectorAll('[data-p]').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+          drawPores(b.dataset.p==='blocked');
+        });
+      });
+      drawPores(false);
+    }
+  },
+
+  /* ================= 重點 4 ================= */
+  {
+    id:4,
+    title:"重點4・SCR 反應器的構造與氣體流向",
+    desc:"氣體進入觸媒區之前，一定要先和氨混合均勻，否則局部氨太多或太少，會同時造成去除率下降與「氨逃逸」（氨沒反應完而漏出）。所以反應器由下往上依序是：進氣、氨注入格柵（AIG）、擾流板、整流板、整流篩版，最後才進入多層觸媒床。控制上，依入口 NOx 調整噴氨量，並用出口 NOx 與氨逃逸訊號回授修正。",
+    slides:["簡報單張圖片/簡報頁面-05.jpg","資訊圖表/圖表4.jpg"],
+    slideCaptions:["簡報：反應器由下往上的氣流路徑與控制邏輯","本重點資訊圖表：反應器構造與前饋、回授控制"],
+    teacherNote:"教學提示：用「調酒」比喻：氨和廢氣沒有先攪勻就倒進觸媒，就像糖沒攪開，有的地方太甜、有的地方沒味道。請學生說說，擾流、整流、篩版三道關卡各負責什麼。",
+    quizzes:[
+      { q:"AIG（氨注入格柵）的作用是什麼？",
+        opts:["過濾廢氣中的粉塵","把氨均勻噴入廢氣","把廢氣加熱到觸媒溫度"], answer:1,
+        feedback:["過濾粉塵是集塵器的工作。","答對了！AIG 由多個氨噴嘴組成，搭配稀釋空氣讓氨與廢氣更容易混合。","加熱廢氣是 SAH 加熱器的工作。"] },
+      { q:"什麼叫做「氨逃逸」？",
+        opts:["氨沒反應完而從出口漏出","觸媒被氨腐蝕","氨水儲槽漏水"], answer:0,
+        feedback:["答對了！混合不均或噴太多，氨就可能沒反應完而漏出，所以要監測出口氨逃逸訊號。","氨逃逸指的是沒反應的氨隨廢氣漏出，不是腐蝕。","氨逃逸發生在反應器出口的氣體，不是儲槽。"] }
+    ],
+    render(container){
+      zonesWidget(container,[
+        {label:"⑦ 排出",sub:"N₂ + H₂O",detail:"反應後的氣體（氮氣與水）往煙囪排放。出口會監測 NOx 與氨逃逸，作為噴氨量的回授訊號。"},
+        {label:"⑥ 觸媒床",sub:"多層",detail:"反應在這裡發生，常見為多層觸媒床，並設有清潔系統（例如吹灰），避免灰塵覆蓋觸媒。"},
+        {label:"⑤ 整流篩版",sub:"進入觸媒區前",detail:"氣體最後通過整流篩版，進入觸媒區。"},
+        {label:"④ 整流板",sub:"往上流",detail:"讓氣流方向與速度均勻，觸媒才不會有的地方氣流太快、有的地方沒氣流。"},
+        {label:"③ 擾流板",sub:"攪拌",detail:"氣體注入氨之後，經擾流板攪拌，讓氨與廢氣混合更均勻。"},
+        {label:"② AIG",sub:"氨注入格柵",detail:"由多個氨噴嘴組成，把氨均勻噴入廢氣；搭配稀釋空氣，讓氨與廢氣更容易混合。"},
+        {label:"① 進氣",sub:"廢氣＋稀釋空氣",detail:"廢氣與稀釋空氣由反應器底部進入。<br>為什麼要混勻？局部氨太多或太少，都會讓去除率下降，也會造成氨逃逸。"}
+      ],"由上到下排列，對應反應器內由上到下的位置；點選各層看功能：");
+    }
+  },
+
+  /* ================= 重點 5 ================= */
+  {
+    id:5,
+    title:"重點5・SCR 放在哪裡？尾端式配置的優點與代價",
+    desc:"SCR 通常擺在引風機下游、煙囪上游，也就是淨化流程的最末端，叫「尾端式」。好處是前面的集塵、洗滌已經把粉塵和酸氣（含大部分 SO₂）清掉，觸媒不容易被汙染。代價是廢氣一路降溫，到這裡只剩約 120°C，遠低於觸媒需要的溫度。下面的溫度是某條旋轉窯焚化線的設計值，每個案子不同。",
+    slides:["簡報單張圖片/簡報頁面-06.jpg","資訊圖表/圖表5.jpg","流程圖/圖1_整廠製程流程.png"],
+    slideCaptions:["簡報：廢氣流程與各段溫度、尾端式配置的優缺點","本重點資訊圖表（注意：66°C 是洗滌塔的溫度）","整廠製程流程圖：SNCR 與 SCR 在流程中的位置"],
+    teacherNote:"教學提示：拖動滑桿，請學生觀察溫度一路下降、最後停在約 120°C 這個時刻，問「這個溫度夠不夠讓觸媒工作？」帶到下一個重點（為什麼要再加熱）。提醒：圖表中標在 MGGH 1 下方的 66°C 其實是洗滌塔的溫度。",
+    quizzes:[
+      { q:"尾端式配置，SCR 裝在哪個位置？",
+        opts:["鍋爐之前","引風機下游、煙囪上游","急冷塔與活性碳注入之間"], answer:1,
+        feedback:["鍋爐之前是高溫區，那是 SNCR 常見的位置。","答對了！在淨化流程的最末端。","那裡還有大量粉塵與酸氣，觸媒容易被汙染。"] },
+      { q:"尾端式配置的優點是什麼？",
+        opts:["廢氣溫度最高，不用再加熱","前面已經清掉粉塵和酸氣，觸媒不容易被汙染","不需要引風機"], answer:1,
+        feedback:["剛好相反，這是尾端式的缺點：廢氣只剩約 120°C。","答對了！代價則是溫度太低，需要再加熱。","引風機仍然需要，SCR 就裝在它後面。"] }
+    ],
+    render(container){
+      const st = [
+        {n:"二燃室",t:1000,d:"燃燒產生的高溫廢氣。"},
+        {n:"鍋爐出口",t:400,d:"鍋爐回收熱能後降溫。"},
+        {n:"急冷塔",t:200,d:"快速降溫。"},
+        {n:"活性碳注入",t:197,d:"注入活性碳吸附有害物質。"},
+        {n:"濾袋集塵器",t:190,d:"濾除粉塵。"},
+        {n:"MGGH 1 出口",t:135,d:"熱媒管式熱交換器吸走熱量。"},
+        {n:"酸洗滌塔",t:67,d:"洗掉酸氣。"},
+        {n:"中和洗滌塔",t:66,d:"鹼洗，進一步中和。"},
+        {n:"MGGH 2 出口",t:120,d:"熱量還給冷廢氣，回升到約 120°C。"}
+      ];
+      container.innerHTML = `
+        <div style="font-size:0.85rem;color:rgba(245,243,231,0.85);">拖動滑桿，跟著廢氣走一趟（單位：°C，圖高度依溫度等比例）：</div>
+        <div class="iv-bar-wrap" data-role="bars" style="gap:6px;"></div>
+        <input type="range" data-role="sl" min="0" max="${st.length-1}" value="0">
+        <div class="iv-msg safe" data-role="msg"></div>`;
+      const bars = container.querySelector('[data-role=bars]');
+      const sl = container.querySelector('[data-role=sl]');
+      const msg = container.querySelector('[data-role=msg]');
+      function draw(){
+        const cur = +sl.value;
+        bars.innerHTML='';
+        st.forEach((s,i)=>{
+          const b = document.createElement('div'); b.className='iv-bar';
+          b.innerHTML = `<div class="iv-bar-value" style="font-size:0.7rem;">${s.t}</div><div class="iv-bar-fill" style="height:${Math.max(s.t/1000*100,3)}%;max-width:34px;${i===cur?'background:linear-gradient(180deg,#fff,#ff9f43);box-shadow:0 0 12px #fff;':(i>cur?'opacity:.25;':'')}"></div><div class="iv-bar-label" style="font-size:0.62rem;">${s.n.replace('出口','').replace(' ','')}</div>`;
+          bars.appendChild(b);
+        });
+        const s = st[cur];
+        if(cur===st.length-1){
+          msg.className='iv-msg danger';
+          msg.textContent = `${s.n}：約 ${s.t}°C。到 SCR 之前只剩這個溫度，遠低於觸媒需要的溫度，所以要再加熱。`;
+        } else {
+          msg.className='iv-msg safe';
+          msg.textContent = `${s.n}：約 ${s.t}°C。${s.d}`;
+        }
+      }
+      sl.addEventListener('input',draw);
+      draw();
+    }
+  },
+
+  /* ================= 重點 6 ================= */
+  {
+    id:6,
+    title:"重點6・為什麼 SCR 前要再加熱？溫度窗口",
+    desc:"廢氣到 SCR 前只有約 120°C，必須用 SAH 煙氣加熱器（以蒸氣加熱）把它加熱到觸媒的有效操作溫度。溫度太低，硫酸氫銨會沉積、堵塞觸媒；溫度太高，耗能增加、觸媒可能燒結劣化，SO₂ 轉成 SO₃ 的比例也會上升。如果選用操作溫度低於 230°C 的低溫觸媒，還要加一套觸媒再生加熱爐，把沉積物加熱分解、恢復活性。",
+    slides:["簡報單張圖片/簡報頁面-07.jpg","流程圖/圖2_SCR與尾端煙氣淨化流程.png"],
+    slideCaptions:["簡報：溫度太低、太高各有什麼問題，以及低溫觸媒的再生","流程圖：SAH 加熱器與觸媒再生加熱爐在系統中的位置"],
+    teacherNote:"教學提示：右邊滑桿是「示意」，沒有標實際溫度，因為各類觸媒的溫度窗口目前標示待文獻確認，請不要在課堂上補上你不確定的數字。可以讓學生猜：「溫度窗口為什麼不能只往高處開？」帶出耗能與觸媒燒結。",
+    quizzes:[
+      { q:"為什麼廢氣進 SCR 之前需要再加熱？",
+        opts:["廢氣到這裡只剩約 120°C，遠低於觸媒有效的操作溫度","因為廢氣太熱，要先換成蒸氣","為了增加廢氣的酸性"], answer:0,
+        feedback:["答對了！洗滌降溫之後溫度不夠，需要 SAH 用蒸氣加熱。","目標是升溫，不是降溫。","加熱和酸性無關，酸氣早在洗滌塔處理掉了。"] },
+      { q:"SCR 溫度太低，最主要的問題是什麼？",
+        opts:["觸媒燒結劣化","硫酸氫銨沉積，堵塞觸媒","SO₂ 轉成 SO₃ 的比例上升"], answer:1,
+        feedback:["燒結劣化是溫度太高的問題。","答對了！低溫時硫酸氫銨容易沉積。","這是溫度太高的問題之一。"] }
+    ],
+    render(container){
+      container.innerHTML = `
+        <div style="font-size:0.85rem;color:rgba(245,243,231,0.85);">示意滑桿（不代表實際溫度）：拖動看看溫度太低、剛好、太高會發生什麼事。</div>
+        <div class="iv-temp-track" style="background:linear-gradient(90deg,#3a6ff0 0%,#3a6ff0 32%,#8de08d 32%,#8de08d 68%,#ff7b7b 68%,#ff7b7b 100%);">
+          <div class="iv-temp-marker" data-role="mk" style="left:50%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:rgba(245,243,231,0.7);"><span>低</span><span>適當窗口（待文獻確認）</span><span>高</span></div>
+        <input type="range" data-role="sl" min="0" max="100" value="50">
+        <div class="iv-msg safe" data-role="msg"></div>
+        <label class="iv-check"><input type="checkbox" data-role="low"> 使用操作溫度低於 230°C 的低溫觸媒</label>
+        <div class="iv-detail" data-role="lowmsg" style="display:none;">低溫觸媒需要再配一套「觸媒再生加熱爐」（含加熱爐、燃燒空氣風機、輸油泵）：定期加熱，把已被硫酸氫銨等覆蓋的觸媒上的沉積物分解，恢復活性。再生溫度與方式 <span style="color:var(--chalk-yellow)">［待文獻確認］</span></div>`;
+      const sl = container.querySelector('[data-role=sl]');
+      const mk = container.querySelector('[data-role=mk]');
+      const msg = container.querySelector('[data-role=msg]');
+      const low = container.querySelector('[data-role=low]');
+      const lowmsg = container.querySelector('[data-role=lowmsg]');
+      function update(){
+        const v = +sl.value;
+        mk.style.left = v+'%';
+        if(v<32){
+          msg.className='iv-msg danger';
+          msg.textContent='太低：硫酸氫銨沉積，堵塞觸媒孔隙，觸媒失效。';
+        } else if(v>68){
+          msg.className='iv-msg danger';
+          msg.textContent='太高：耗能增加、觸媒可能燒結劣化，SO₂ 轉成 SO₃ 的比例也上升。';
+        } else {
+          msg.className='iv-msg safe';
+          msg.textContent='在適當窗口內：脫硝反應正常進行。（各類觸媒的實際窗口待文獻確認）';
+        }
+      }
+      sl.addEventListener('input',update);
+      low.addEventListener('change',()=>{ lowmsg.style.display = low.checked?'block':'none'; });
+      update();
+    }
+  },
+
+  /* ================= 重點 7 ================= */
+  {
+    id:7,
+    title:"重點7・MGGH 熱回收：用廢氣自己的熱",
+    desc:"MGGH（熱媒管式熱交換器）用一個熱媒（軟水或去離子水）在兩台換熱器之間循環：MGGH 1 把進洗滌塔前熱廢氣的熱量吸走（190°C → 135°C），熱媒水升到約 158°C；MGGH 2 把這份熱量還給洗滌後的冷廢氣（66°C → 120°C），熱媒水降回約 104°C 再流回去。迴路上的 SGH 蒸氣加熱器負責替熱媒水補熱。這樣可以回收廢氣自己的熱量，減少外加蒸氣。",
+    slides:["簡報單張圖片/簡報頁面-08.jpg","流程圖/圖2_SCR與尾端煙氣淨化流程.png"],
+    slideCaptions:["簡報：MGGH 1、MGGH 2 與 SGH 的熱媒水循環","流程圖：熱媒水迴路（紅線送熱、藍虛線回流）"],
+    teacherNote:"教學提示：用「搬家公司」比喻：熱媒水像一輛卡車，在前面把熱「載」起來，到後面「卸」給冷廢氣。最容易混淆的是 SGH 和 SAH：SGH 加熱的是熱媒水，SAH 加熱的才是進 SCR 的廢氣，請學生用自己的話區分。",
+    quizzes:[
+      { q:"MGGH 2 的作用是什麼？",
+        opts:["把熱量還給洗滌後的冷廢氣（約 66°C → 120°C）","把廢氣降到更低溫","過濾廢氣中的粉塵"], answer:0,
+        feedback:["答對了！熱媒水在這裡放熱，廢氣升溫，水則降回約 104°C。","降溫的是 MGGH 1（吸熱的那一端）。","過濾粉塵是集塵器的工作。"] },
+      { q:"SGH 蒸氣加熱器是用來加熱什麼？",
+        opts:["直接加熱進 SCR 的廢氣","替熱媒水補熱","加熱氨水儲槽"], answer:1,
+        feedback:["那是 SAH 的工作，兩個名字很像，要分清楚。","答對了！SGH 裝在熱媒水迴路上，補足 MGGH 1 吸不夠的熱量。","來源教材沒有這個說法。"] }
+    ],
+    render(container){
+      zonesWidget(container,[
+        {label:"MGGH 1",sub:"吸熱",detail:"熱廢氣：<b>190°C → 135°C</b>（進洗滌塔前降溫）<br>熱媒水：吸熱，升到約 <b>158°C</b>"},
+        {label:"SGH",sub:"替水補熱",detail:"蒸氣加熱器，裝在熱媒水迴路上，專門替<b>熱媒水</b>補熱，補足 MGGH 1 吸不夠的熱量。"},
+        {label:"MGGH 2",sub:"放熱",detail:"冷廢氣：<b>66°C → 120°C</b>（洗滌後回升）<br>熱媒水：放熱，降回約 <b>104°C</b>，再流回 MGGH 1。"},
+        {label:"SAH",sub:"加熱廢氣",detail:"另一台設備，直接用蒸氣把<b>進 SCR 的廢氣</b>加熱到觸媒操作溫度。<b>跟 SGH 不一樣</b>：SGH 加熱的是水，SAH 加熱的是廢氣。"}
+      ],"點選四台設備，看各自的角色與溫度：");
+    }
+  },
+
+  /* ================= 重點 8 ================= */
+  {
+    id:8,
+    title:"重點8・增設 SCR 的連鎖影響",
+    desc:"增設 SCR 不是只多一台設備，而是整條線的系統調整：新增 SCR 脫硝系統、SAH 換熱設備、（低溫觸媒用的）再生加熱爐，還有 DCS 控制點數（數位／類比的輸入輸出點）。氣體穿過觸媒層會產生壓降，所以引風機要加大、更耗電；反應器很重，基樁也要增加；管道、風管、電力、公用流體與藥劑消耗都會增加。",
+    slides:["簡報單張圖片/簡報頁面-09.jpg"],
+    slideCaptions:["簡報：增設 SCR 對既有系統的連帶影響"],
+    teacherNote:"教學提示：讓學生分組，每組抽一個影響項目，說明「為什麼會連帶改變」。核心觀念：工程是一個系統，改一個地方，其他地方都要跟著調整。",
+    quizzes:[
+      { q:"增設 SCR 之後，為什麼引風機的容量與耗電量要增加？",
+        opts:["因為氣體穿過觸媒層會產生壓降，風機要多出力","因為要排出更多氮氣","因為煙囪變高了"], answer:0,
+        feedback:["答對了！觸媒層會擋住氣流，風機要把氣體推過去就得多出力。","氮氣是無害產物，量不是主因。","來源教材沒有這個原因。"] },
+      { q:"增設 SCR 為什麼基樁數量會增加？",
+        opts:["反應器很重，需要更多基樁承重","為了加快反應速度","為了降低廢氣溫度"], answer:0,
+        feedback:["答對了！荷重增加，基礎就要補強。","基樁是土建結構，跟反應速度無關。","基樁不影響溫度。"] }
+    ],
+    render(container){
+      zonesWidget(container,[
+        {label:"引風機",sub:"容量與耗電↑",detail:"觸媒層與新增設備造成<b>壓降</b>，風機要加大容量，耗電量也增加。"},
+        {label:"MGGH 支撐",sub:"結構補強",detail:"荷重或配置改變，MGGH 的支撐結構與平台要補強。"},
+        {label:"基樁",sub:"數量增加",detail:"SCR 反應器很重，需要更多基樁。"},
+        {label:"管道風管電力",sub:"連接增加",detail:"新設備要接進既有系統：管道、風管、電力連接都增加。"},
+        {label:"DCS",sub:"介面整合",detail:"新增控制點（DI／DO／AI／AO）要併進既有控制系統，並整合控制邏輯。"},
+        {label:"公用流體與藥劑",sub:"消耗增加",detail:"蒸氣、氨水、壓縮空氣、燃油（再生用）等的消耗都增加。"},
+        {label:"試車",sub:"一起調整",detail:"新舊系統要一起試車與調整。"}
+      ],"點選各項，看為什麼會連帶改變：");
+    }
+  }
+];
+
+/* ================= 以下是通用邏輯，不需要為新主題修改 ================= */
+
+const sideNav = document.getElementById('sideNav');
+const main = document.getElementById('cockpitMain');
+
+POINTS.forEach((p,i)=>{
+  const navBtn = document.createElement('button');
+  navBtn.textContent = p.id;
+  navBtn.dataset.idx = i;
+  const label = document.createElement('span');
+  label.className = 'side-nav-label';
+  label.textContent = p.title.split('・')[1];
+  navBtn.appendChild(label);
+  navBtn.addEventListener('click',()=>{
+    document.getElementById('section-'+p.id).scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  sideNav.appendChild(navBtn);
+
+  const section = document.createElement('section');
+  section.className = 'point-section';
+  section.id = 'section-'+p.id;
+  section.innerHTML = `
+    <h2>${p.title}</h2>
+    <p class="desc">${p.desc}</p>
+    <div class="panel-grid">
+      <div class="panel-card carousel-card" data-role="carousel-card">
+        <h3>📽️ NotebookLM 簡報輪播 <button class="carousel-expand-btn" data-role="expand">⤢ 放大顯示</button></h3>
+        <div class="carousel">
+          <div class="carousel-viewport"><img data-role="img" src="" alt=""></div>
+          <div class="carousel-controls">
+            <button class="carousel-btn" data-role="prev">◀ 上一頁</button>
+            <div class="carousel-dots" data-role="dots"></div>
+            <button class="carousel-btn" data-role="next">下一頁 ▶</button>
+          </div>
+          <div class="carousel-caption" data-role="caption"></div>
+        </div>
+      </div>
+      <div class="lower-grid">
+        <div class="panel-card">
+          <h3>🧪 互動視覺化</h3>
+          <div class="interactive-area" data-role="interactive"></div>
+        </div>
+        <div class="panel-card">
+          <h3>✅ 形成性評量</h3>
+          <div class="quiz-area" data-role="quiz"></div>
+        </div>
+      </div>
+    </div>
+    <div class="teacher-note teacher-only">👩‍🏫 ${p.teacherNote}</div>
+  `;
+  main.appendChild(section);
+
+  let carIdx = 0;
+  const imgEl = section.querySelector('[data-role=img]');
+  const capEl = section.querySelector('[data-role=caption]');
+  const dotsEl = section.querySelector('[data-role=dots]');
+  function renderCarousel(){
+    imgEl.src = p.slides[carIdx];
+    capEl.textContent = p.slideCaptions[carIdx];
+    dotsEl.innerHTML='';
+    p.slides.forEach((_,idx)=>{
+      const d=document.createElement('div');
+      d.className='carousel-dot'+(idx===carIdx?' active':'');
+      d.addEventListener('click',()=>{ carIdx=idx; renderCarousel(); });
+      dotsEl.appendChild(d);
+    });
+  }
+  section.querySelector('[data-role=prev]').addEventListener('click',()=>{
+    carIdx=(carIdx-1+p.slides.length)%p.slides.length; renderCarousel();
+  });
+  section.querySelector('[data-role=next]').addEventListener('click',()=>{
+    carIdx=(carIdx+1)%p.slides.length; renderCarousel();
+  });
+  renderCarousel();
+
+  const carouselCard = section.querySelector('[data-role=carousel-card]');
+  const expandBtn = section.querySelector('[data-role=expand]');
+  expandBtn.addEventListener('click',()=>{
+    const isExpanded = carouselCard.classList.toggle('expanded');
+    expandBtn.textContent = isExpanded ? '⤡ 恢復原尺寸' : '⤢ 放大顯示';
+  });
+
+  p.render(section.querySelector('[data-role=interactive]'));
+
+  const quizArea = section.querySelector('[data-role=quiz]');
+  quizArea.innerHTML = '';
+  p.quizzes.forEach((qz,qi)=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'quiz-block';
+    wrap.innerHTML = `
+      <div class="quiz-q">${qi+1}. ${qz.q} <span class="teacher-badge">教師可見答案</span></div>
+      <div data-role="opts"></div>
+      <div class="quiz-feedback" data-role="feedback"></div>`;
+    const optsEl = wrap.querySelector('[data-role=opts]');
+    qz.opts.forEach((opt,oi)=>{
+      const b=document.createElement('button');
+      b.className='quiz-opt'+(oi===qz.answer?' answer-key':'');
+      b.textContent = opt;
+      b.addEventListener('click',()=>{
+        optsEl.querySelectorAll('.quiz-opt').forEach(o=>o.disabled=true);
+        b.classList.add(oi===qz.answer?'correct':'wrong');
+        if(oi!==qz.answer){ optsEl.children[qz.answer].classList.add('correct'); }
+        const fb = wrap.querySelector('[data-role=feedback]');
+        fb.textContent = qz.feedback[oi];
+        fb.classList.add('show');
+      });
+      optsEl.appendChild(b);
+    });
+    quizArea.appendChild(wrap);
+  });
+});
+
+/* ---- 捲動同步側邊導覽高亮 (scroll-spy) ---- */
+const sections = Array.from(document.querySelectorAll('.point-section'));
+const navBtns = Array.from(sideNav.querySelectorAll('button'));
+const spy = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const idx = sections.indexOf(entry.target);
+      navBtns.forEach(b=>b.classList.remove('active'));
+      if(navBtns[idx]) navBtns[idx].classList.add('active');
+    }
+  });
+},{rootMargin:'-35% 0px -55% 0px',threshold:0});
+sections.forEach(s=>spy.observe(s));
+if(navBtns[0]) navBtns[0].classList.add('active');
+
+/* ================= 教師／學生模式 ================= */
+document.getElementById('teacherBtn').addEventListener('click',()=>{
+  document.body.classList.add('teacher-mode');
+  document.getElementById('teacherBtn').classList.add('active');
+  document.getElementById('studentBtn').classList.remove('active');
+});
+document.getElementById('studentBtn').addEventListener('click',()=>{
+  document.body.classList.remove('teacher-mode');
+  document.getElementById('studentBtn').classList.add('active');
+  document.getElementById('teacherBtn').classList.remove('active');
+});
+
+/* ================= 影片 (YouTube) / PDF 開啟 ================= */
+if(YOUTUBE_ID.startsWith('REPLACE')){ document.getElementById('openVideoBtn').style.display='none'; }
+document.getElementById('openVideoBtn').addEventListener('click',()=>{
+  document.getElementById('ytFrame').src = `https://www.youtube.com/embed/${YOUTUBE_ID}?autoplay=1`;
+  document.getElementById('videoModal').classList.add('open');
+});
+document.querySelectorAll('[data-close-modal]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.getElementById(b.dataset.closeModal).classList.remove('open');
+    document.getElementById('ytFrame').src = '';
+  });
+});
+document.getElementById('openPdfBtn').addEventListener('click',()=>{
+  window.open('SCR脫硝教學簡報.pdf','_blank');
+});
+
+/* ================= 浮動工具列 ================= */
+document.querySelectorAll('.tool-toggle').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const tool = btn.dataset.tool;
+    const panelId = tool==='draw'?'drawPanel':tool==='timer'?'timerPanel':'penPanel';
+    const panel = document.getElementById(panelId);
+    const isOpen = panel.classList.contains('open');
+    document.querySelectorAll('.floating-panel').forEach(p=>p.classList.remove('open'));
+    document.querySelectorAll('.tool-toggle').forEach(b=>b.classList.remove('on'));
+    if(!isOpen){ panel.classList.add('open'); btn.classList.add('on'); }
+  });
+});
+document.querySelectorAll('.fp-close').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.getElementById(b.dataset.close).classList.remove('open');
+    document.querySelectorAll('.tool-toggle').forEach(x=>x.classList.remove('on'));
+  });
+});
+
+/* ---- 抽籤（數字範圍） ---- */
+document.getElementById('drawGoBtn').addEventListener('click',()=>{
+  let min = parseInt(document.getElementById('pickerMin').value,10);
+  let max = parseInt(document.getElementById('pickerMax').value,10);
+  if(isNaN(min) || isNaN(max)) return;
+  if(min>max){ [min,max]=[max,min]; }
+  const resultEl = document.getElementById('pickerResult');
+  let count=0;
+  const iv = setInterval(()=>{
+    resultEl.textContent = Math.floor(Math.random()*(max-min+1))+min;
+    count++;
+    if(count>16){
+      clearInterval(iv);
+      resultEl.textContent = '🎉 '+(Math.floor(Math.random()*(max-min+1))+min)+' 號';
+    }
+  },80);
+});
+
+/* ---- 計時器 ---- */
+let timerSeconds = 300, timerInterval = null, timerRunning=false;
+function renderTimer(){
+  const m = Math.floor(timerSeconds/60).toString().padStart(2,'0');
+  const s = (timerSeconds%60).toString().padStart(2,'0');
+  document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+}
+document.querySelectorAll('.timer-presets button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    timerSeconds = +b.dataset.sec;
+    renderTimer();
+  });
+});
+document.getElementById('timerStart').addEventListener('click',(e)=>{
+  if(timerRunning){
+    clearInterval(timerInterval); timerRunning=false; e.target.textContent='開始';
+    return;
+  }
+  timerRunning = true; e.target.textContent='暫停';
+  timerInterval = setInterval(()=>{
+    if(timerSeconds<=0){ clearInterval(timerInterval); timerRunning=false; document.getElementById('timerStart').textContent='開始'; return; }
+    timerSeconds--; renderTimer();
+  },1000);
+});
+document.getElementById('timerReset').addEventListener('click',()=>{
+  clearInterval(timerInterval); timerRunning=false;
+  document.getElementById('timerStart').textContent='開始';
+  timerSeconds=300; renderTimer();
+});
+renderTimer();
+
+/* ---- 畫筆 ---- */
+const canvas = document.getElementById('drawCanvas');
+const ctx = canvas.getContext('2d');
+function resizeCanvas(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+window.addEventListener('resize',resizeCanvas); resizeCanvas();
+let penActive=false, drawing=false, penColor='#f5f3e7';
+document.getElementById('penToggleBtn').addEventListener('click',(e)=>{
+  penActive = !penActive;
+  canvas.classList.toggle('active',penActive);
+  e.target.textContent = penActive? '🛑 關閉畫筆模式' : '🖊️ 開啟畫筆模式';
+});
+document.querySelectorAll('.pen-color').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('.pen-color').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    penColor = c.dataset.color;
+  });
+});
+document.getElementById('penClearBtn').addEventListener('click',()=>ctx.clearRect(0,0,canvas.width,canvas.height));
+canvas.addEventListener('pointerdown',e=>{ if(!penActive) return; drawing=true; ctx.beginPath(); ctx.moveTo(e.clientX,e.clientY); });
+canvas.addEventListener('pointermove',e=>{
+  if(!penActive || !drawing) return;
+  ctx.lineTo(e.clientX,e.clientY);
+  ctx.strokeStyle=penColor; ctx.lineWidth=3.5; ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.stroke();
+});
+window.addEventListener('pointerup',()=>drawing=false);
+</script>
+</body>
+</html>
